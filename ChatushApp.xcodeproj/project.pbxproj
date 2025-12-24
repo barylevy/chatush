@@ -6,14 +6,19 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		07697E572EFC7FF100A0F381 /* ChatushSDK in Frameworks */ = {isa = PBXBuildFile; productRef = 07697E562EFC7FF100A0F381 /* ChatushSDK */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
-		07697E3F2EFC7D0100A0F381 /* Chatush.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Chatush.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		07697E3F2EFC7D0100A0F381 /* ChatushApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ChatushApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		07697E532EFC7FB600A0F381 /* ChatushSDK */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = ChatushSDK; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		07697E412EFC7D0100A0F381 /* Chatush */ = {
+		07697E412EFC7D0100A0F381 /* ChatushApp */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			path = Chatush;
+			path = ChatushApp;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -23,6 +28,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				07697E572EFC7FF100A0F381 /* ChatushSDK in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -32,7 +38,8 @@
 		07697E362EFC7D0100A0F381 = {
 			isa = PBXGroup;
 			children = (
-				07697E412EFC7D0100A0F381 /* Chatush */,
+				07697E412EFC7D0100A0F381 /* ChatushApp */,
+				07697E532EFC7FB600A0F381 /* ChatushSDK */,
 				07697E402EFC7D0100A0F381 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -40,7 +47,7 @@
 		07697E402EFC7D0100A0F381 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				07697E3F2EFC7D0100A0F381 /* Chatush.app */,
+				07697E3F2EFC7D0100A0F381 /* ChatushApp.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -48,9 +55,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		07697E3E2EFC7D0100A0F381 /* Chatush */ = {
+		07697E3E2EFC7D0100A0F381 /* ChatushApp */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 07697E4A2EFC7D1000A0F381 /* Build configuration list for PBXNativeTarget "Chatush" */;
+			buildConfigurationList = 07697E4A2EFC7D1000A0F381 /* Build configuration list for PBXNativeTarget "ChatushApp" */;
 			buildPhases = (
 				07697E3B2EFC7D0100A0F381 /* Sources */,
 				07697E3C2EFC7D0100A0F381 /* Frameworks */,
@@ -61,13 +68,14 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				07697E412EFC7D0100A0F381 /* Chatush */,
+				07697E412EFC7D0100A0F381 /* ChatushApp */,
 			);
-			name = Chatush;
+			name = ChatushApp;
 			packageProductDependencies = (
+				07697E562EFC7FF100A0F381 /* ChatushSDK */,
 			);
 			productName = Chatush;
-			productReference = 07697E3F2EFC7D0100A0F381 /* Chatush.app */;
+			productReference = 07697E3F2EFC7D0100A0F381 /* ChatushApp.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -85,7 +93,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 07697E3A2EFC7D0100A0F381 /* Build configuration list for PBXProject "Chatush" */;
+			buildConfigurationList = 07697E3A2EFC7D0100A0F381 /* Build configuration list for PBXProject "ChatushApp" */;
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -94,12 +102,15 @@
 			);
 			mainGroup = 07697E362EFC7D0100A0F381;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				07697E552EFC7FF100A0F381 /* XCLocalSwiftPackageReference "ChatushSDK" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 07697E402EFC7D0100A0F381 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				07697E3E2EFC7D0100A0F381 /* Chatush */,
+				07697E3E2EFC7D0100A0F381 /* ChatushApp */,
 			);
 		};
 /* End PBXProject section */
@@ -313,7 +324,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		07697E3A2EFC7D0100A0F381 /* Build configuration list for PBXProject "Chatush" */ = {
+		07697E3A2EFC7D0100A0F381 /* Build configuration list for PBXProject "ChatushApp" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				07697E482EFC7D1000A0F381 /* Debug */,
@@ -322,7 +333,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		07697E4A2EFC7D1000A0F381 /* Build configuration list for PBXNativeTarget "Chatush" */ = {
+		07697E4A2EFC7D1000A0F381 /* Build configuration list for PBXNativeTarget "ChatushApp" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				07697E4B2EFC7D1000A0F381 /* Debug */,
@@ -332,6 +343,20 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		07697E552EFC7FF100A0F381 /* XCLocalSwiftPackageReference "ChatushSDK" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ChatushSDK;
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		07697E562EFC7FF100A0F381 /* ChatushSDK */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = ChatushSDK;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 07697E372EFC7D0100A0F381 /* Project object */;
 }
