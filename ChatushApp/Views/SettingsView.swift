@@ -2,7 +2,7 @@ import SwiftUI
 
 struct SettingsView: View {
     @State private var viewModel = SettingsViewModel()
-    
+
     var body: some View {
         NavigationStack {
             Form {
@@ -16,12 +16,12 @@ struct SettingsView: View {
                     .onChange(of: viewModel.storageType) { _, newValue in
                         viewModel.changeStorageType(newValue)
                     }
-                    
+
                     Text("Current: \(viewModel.storageType.rawValue)")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
-                
+
                 // Provider Section
                 Section("Provider") {
                     Picker("Provider", selection: $viewModel.config.provider) {
@@ -29,12 +29,12 @@ struct SettingsView: View {
                         Text("Mock (Local)").tag("mock")
                     }
                     .pickerStyle(.segmented)
-                    
+
                     TextField("Model", text: $viewModel.config.model)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
                 }
-                
+
                 // API Configuration Section
                 if viewModel.config.provider != "mock" {
                     Section("API Configuration") {
@@ -44,7 +44,7 @@ struct SettingsView: View {
                         ))
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
-                        
+
                         TextField("Endpoint (Optional)", text: Binding(
                             get: { viewModel.config.endpoint ?? "" },
                             set: { viewModel.config.endpoint = $0.isEmpty ? nil : $0 }
@@ -54,7 +54,7 @@ struct SettingsView: View {
                         .keyboardType(.URL)
                     }
                 }
-                
+
                 // Model Parameters Section
                 Section("Model Parameters") {
                     VStack(alignment: .leading) {
@@ -64,12 +64,12 @@ struct SettingsView: View {
                             Text(String(format: "%.2f", viewModel.config.temperature))
                                 .foregroundStyle(.secondary)
                         }
-                        Slider(value: $viewModel.config.temperature, in: 0...2, step: 0.1)
+                        Slider(value: $viewModel.config.temperature, in: 0 ... 2, step: 0.1)
                     }
-                    
-                    Stepper("Max Tokens: \(viewModel.config.maxTokens)", value: $viewModel.config.maxTokens, in: 100...4000, step: 100)
+
+                    Stepper("Max Tokens: \(viewModel.config.maxTokens)", value: $viewModel.config.maxTokens, in: 100 ... 4000, step: 100)
                 }
-                
+
                 // Actions Section
                 Section {
                     Button {
@@ -88,7 +88,7 @@ struct SettingsView: View {
                         }
                     }
                     .disabled(viewModel.isLoading)
-                    
+
                     Button {
                         Task {
                             await viewModel.saveConfig()
@@ -101,7 +101,7 @@ struct SettingsView: View {
                         }
                     }
                     .disabled(viewModel.isLoading)
-                    
+
                     Button(role: .destructive) {
                         Task {
                             await viewModel.deleteConfig()
@@ -115,7 +115,7 @@ struct SettingsView: View {
                     }
                     .disabled(viewModel.isLoading)
                 }
-                
+
                 // Provider Info Section
                 Section("Current Configuration") {
                     LabeledContent("Provider", value: viewModel.config.provider)
@@ -137,7 +137,7 @@ struct SettingsView: View {
                             .padding()
                     }
                 }
-                
+
                 if let successMessage = viewModel.successMessage {
                     VStack {
                         Spacer()

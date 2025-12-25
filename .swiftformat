@@ -1,0 +1,24 @@
+--swiftversion 5.9
+
+--allman false
+--allow-partial-wrapping true
+--ifdef outdent
+--max-width 150
+--wrap-arguments preserve
+--wrap-conditions after-first
+
+# Enable
+
+--enable wrapMultilineFunctionChains
+--enable wrapMultilineFunctionChains
+--enable wrapSwitchCases
+
+# Disable
+
+--disable hoistPatternLet
+--disable preferForLoop
+--disable unusedArguments
+--disable wrapMultilineStatementBraces
+
+# Exclude
+--exclude **/.build,**/Package.swift,Vendor,Scripts,fastlane, ./build

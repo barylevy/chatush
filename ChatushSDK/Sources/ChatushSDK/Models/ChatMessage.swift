@@ -7,10 +7,10 @@ public struct ChatMessage: Codable, Sendable {
         case assistant
         case system
     }
-    
+
     public let role: Role
     public let content: String
-    
+
     public init(role: Role, content: String) {
         self.role = role
         self.content = content

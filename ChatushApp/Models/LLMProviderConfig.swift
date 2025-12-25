@@ -8,7 +8,7 @@ struct LLMProviderConfig: Codable, Sendable {
     var endpoint: String?
     var temperature: Double
     var maxTokens: Int
-    
+
     static let defaultConfig = LLMProviderConfig(
         provider: "mock",
         model: "mock-v1",

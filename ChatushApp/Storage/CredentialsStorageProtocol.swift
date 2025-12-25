@@ -13,17 +13,17 @@ enum CredentialsStorageError: LocalizedError {
     case loadFailed
     case deleteFailed
     case keychainError(OSStatus)
-    
+
     var errorDescription: String? {
         switch self {
         case .saveFailed:
-            return "Failed to save configuration"
+            "Failed to save configuration"
         case .loadFailed:
-            return "Failed to load configuration"
+            "Failed to load configuration"
         case .deleteFailed:
-            return "Failed to delete configuration"
+            "Failed to delete configuration"
         case .keychainError(let status):
-            return "Keychain error: \(status)"
+            "Keychain error: \(status)"
         }
     }
 }

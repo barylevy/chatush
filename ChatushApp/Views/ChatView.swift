@@ -5,9 +5,9 @@ struct ChatView: View {
     @State private var showingClearAlert = false
     @State private var selectedMessages: Set<UUID> = []
     @State private var isSelectionMode = false
-    
+
     var existingConversation: Conversation?
-    
+
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
@@ -32,9 +32,9 @@ struct ChatView: View {
                                 }
                                 .id(message.id)
                             }
-                            
+
                             // Streaming message
-                            if viewModel.isStreaming && !viewModel.streamingMessage.isEmpty {
+                            if viewModel.isStreaming, !viewModel.streamingMessage.isEmpty {
                                 MessageBubble(
                                     content: viewModel.streamingMessage,
                                     isFromUser: false,
@@ -59,16 +59,16 @@ struct ChatView: View {
                         }
                     }
                 }
-                
+
                 Divider()
-                
+
                 // Input area
                 HStack(spacing: 12) {
                     TextField("Type a message...", text: $viewModel.inputText, axis: .vertical)
                         .textFieldStyle(.roundedBorder)
-                        .lineLimit(1...5)
+                        .lineLimit(1 ... 5)
                         .disabled(viewModel.isSending)
-                    
+
                     Button {
                         Task {
                             await viewModel.sendMessage()
@@ -95,8 +95,8 @@ struct ChatView: View {
                         } label: {
                             Label(isSelectionMode ? "Cancel Selection" : "Select Messages", systemImage: "checkmark.circle")
                         }
-                        
-                        if isSelectionMode && !selectedMessages.isEmpty {
+
+                        if isSelectionMode, !selectedMessages.isEmpty {
                             Button(role: .destructive) {
                                 Task {
                                     let messagesToDelete = viewModel.messages.filter { selectedMessages.contains($0.id) }
@@ -108,9 +108,9 @@ struct ChatView: View {
                                 Label("Delete Selected", systemImage: "trash")
                             }
                         }
-                        
+
                         Divider()
-                        
+
                         Button(role: .destructive) {
                             showingClearAlert = true
                         } label: {
@@ -122,7 +122,7 @@ struct ChatView: View {
                 }
             }
             .alert("Clear Conversation", isPresented: $showingClearAlert) {
-                Button("Cancel", role: .cancel) { }
+                Button("Cancel", role: .cancel) {}
                 Button("Clear", role: .destructive) {
                     Task {
                         await viewModel.clearConversation()
@@ -164,43 +164,43 @@ struct MessageBubble: View {
     var isSelected: Bool = false
     var isSelectionMode: Bool = false
     var isStreaming: Bool = false
-    
+
     init(message: Message, isSelected: Bool = false, isSelectionMode: Bool = false) {
         self.message = message
-        self.content = message.content
-        self.isFromUser = message.isFromUser
-        self.timestamp = message.timestamp
-        self.latencyMs = message.latencyMs
+        content = message.content
+        isFromUser = message.isFromUser
+        timestamp = message.timestamp
+        latencyMs = message.latencyMs
         self.isSelected = isSelected
         self.isSelectionMode = isSelectionMode
     }
-    
+
     init(content: String, isFromUser: Bool, timestamp: Date, latencyMs: Int? = nil, isStreaming: Bool = false) {
-        self.message = nil
+        message = nil
         self.content = content
         self.isFromUser = isFromUser
         self.timestamp = timestamp
         self.latencyMs = latencyMs
         self.isStreaming = isStreaming
     }
-    
+
     var body: some View {
         HStack {
             if isFromUser { Spacer() }
-            
+
             VStack(alignment: isFromUser ? .trailing : .leading, spacing: 4) {
                 Text(content)
                     .padding(12)
                     .background(isFromUser ? Color.blue : Color(.systemGray5))
                     .foregroundStyle(isFromUser ? .white : .primary)
                     .clipShape(RoundedRectangle(cornerRadius: 16))
-                
+
                 HStack(spacing: 8) {
-                    Text(timestamp, style: .time)
+                    Text(timestamp.formatted(date: .omitted, time: .shortened))
                         .font(.caption2)
                         .foregroundStyle(.secondary)
-                    
-                    if let latencyMs = latencyMs {
+
+                    if let latencyMs {
                         Text("•")
                             .font(.caption2)
                             .foregroundStyle(.secondary)
@@ -208,7 +208,7 @@ struct MessageBubble: View {
                             .font(.caption2)
                             .foregroundStyle(.secondary)
                     }
-                    
+
                     if isStreaming {
                         ProgressView()
                             .scaleEffect(0.7)
@@ -222,7 +222,7 @@ struct MessageBubble: View {
                         .offset(x: isFromUser ? -8 : 8, y: -8)
                 }
             }
-            
+
             if !isFromUser { Spacer() }
         }
     }

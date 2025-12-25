@@ -6,7 +6,7 @@ public struct ModelResponse: Codable, Sendable {
     public let provider: String
     public let model: String
     public let latencyMs: Int
-    
+
     public init(text: String, provider: String, model: String, latencyMs: Int) {
         self.text = text
         self.provider = provider

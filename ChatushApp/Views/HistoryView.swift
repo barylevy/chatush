@@ -4,11 +4,11 @@ struct HistoryView: View {
     @State private var viewModel = HistoryViewModel()
     @State private var selectedConversation: Conversation?
     @State private var showChat = false
-    
+
     var body: some View {
         NavigationStack {
             ZStack {
-                if viewModel.conversations.isEmpty && !viewModel.isLoading {
+                if viewModel.conversations.isEmpty, !viewModel.isLoading {
                     ContentUnavailableView(
                         "No Conversations",
                         systemImage: "message.slash",
@@ -39,7 +39,7 @@ struct HistoryView: View {
                                     }
                                 }
                         }
-                        
+
                         if viewModel.isLoading {
                             HStack {
                                 Spacer()
@@ -81,25 +81,25 @@ struct HistoryView: View {
 
 struct ConversationRow: View {
     let conversation: Conversation
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
                 Text(conversation.title)
                     .font(.headline)
                 Spacer()
-                Text(conversation.lastMessageDate, style: .relative)
+                Text(conversation.lastMessageDate.formatted(.relative(presentation: .named)))
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
-            
+
             HStack {
                 Label(conversation.providerName, systemImage: "brain")
                     .font(.caption)
                     .foregroundStyle(.secondary)
-                
+
                 Spacer()
-                
+
                 Text("\(conversation.messages.count) messages")
                     .font(.caption)
                     .foregroundStyle(.secondary)

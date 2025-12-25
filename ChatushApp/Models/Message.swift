@@ -8,9 +8,9 @@ final class Message {
     var timestamp: Date
     var isFromUser: Bool
     var latencyMs: Int?
-    
+
     var conversation: Conversation?
-    
+
     init(
         id: UUID = UUID(),
         content: String,

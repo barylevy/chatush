@@ -8,7 +8,7 @@ public struct ModelConfiguration: Codable, Sendable {
     public let endpoint: String?
     public let temperature: Double?
     public let maxTokens: Int?
-    
+
     public init(
         provider: String,
         model: String,

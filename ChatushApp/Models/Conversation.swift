@@ -9,10 +9,10 @@ final class Conversation {
     var updatedAt: Date
     var providerName: String
     var modelName: String
-    
+
     @Relationship(deleteRule: .cascade, inverse: \Message.conversation)
     var messages: [Message] = []
-    
+
     init(
         id: UUID = UUID(),
         title: String,
@@ -28,7 +28,7 @@ final class Conversation {
         self.providerName = providerName
         self.modelName = modelName
     }
-    
+
     var lastMessageDate: Date {
         messages.last?.timestamp ?? updatedAt
     }

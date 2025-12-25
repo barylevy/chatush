@@ -9,23 +9,23 @@ public enum ModelProviderError: LocalizedError, Sendable {
     case apiError(statusCode: Int, message: String)
     case unsupportedProvider(String)
     case networkError(Error)
-    
+
     public var errorDescription: String? {
         switch self {
         case .missingApiKey:
-            return "API key is required for this provider"
+            "API key is required for this provider"
         case .invalidEndpoint:
-            return "Invalid endpoint URL"
+            "Invalid endpoint URL"
         case .invalidRequest:
-            return "Invalid request format"
+            "Invalid request format"
         case .invalidResponse:
-            return "Invalid response from provider"
+            "Invalid response from provider"
         case .apiError(let statusCode, let message):
-            return "API Error (\(statusCode)): \(message)"
+            "API Error (\(statusCode)): \(message)"
         case .unsupportedProvider(let provider):
-            return "Unsupported provider: \(provider)"
+            "Unsupported provider: \(provider)"
         case .networkError(let error):
-            return "Network error: \(error.localizedDescription)"
+            "Network error: \(error.localizedDescription)"
         }
     }
 }

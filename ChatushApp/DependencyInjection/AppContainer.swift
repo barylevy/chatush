@@ -1,6 +1,6 @@
+import ChatushSDK
 import Factory
 import SwiftData
-import ChatushSDK
 
 /// Storage type preference
 enum StorageType: String, CaseIterable {
@@ -10,16 +10,15 @@ enum StorageType: String, CaseIterable {
 
 /// Main dependency injection container using Factory
 extension Container {
-    
     // MARK: - Storage Type
-    
+
     var storageType: Factory<StorageType> {
         self { .keychain }
             .scope(.shared)
     }
-    
+
     // MARK: - Credentials Storage
-    
+
     var credentialsStorage: Factory<CredentialsStorageProtocol> {
         self {
             let type = self.storageType()
@@ -32,16 +31,16 @@ extension Container {
         }
         .scope(.singleton)
     }
-    
+
     // MARK: - SDK
-    
+
     var chatushSDK: Factory<ChatushSDK> {
         self { ChatushSDK() }
             .scope(.singleton)
     }
-    
+
     // MARK: - Repositories
-    
+
     var conversationsRepository: Factory<ConversationsRepositoryProtocol> {
         self {
             @MainActor in
@@ -50,17 +49,17 @@ extension Container {
         }
         .scope(.singleton)
     }
-    
+
     // MARK: - SwiftData Context
-    
+
     var modelContainer: Factory<ModelContainer> {
         self {
             let schema = Schema([
                 Conversation.self,
-                Message.self
+                Message.self,
             ])
             let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
-            
+
             do {
                 return try ModelContainer(for: schema, configurations: [modelConfiguration])
             } catch {
@@ -69,7 +68,7 @@ extension Container {
         }
         .scope(.singleton)
     }
-    
+
     var modelContext: Factory<ModelContext> {
         self {
             let container = self.modelContainer()
