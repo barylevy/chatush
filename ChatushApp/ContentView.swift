@@ -7,15 +7,12 @@
 
 import SwiftUI
 
+// This file is kept for backwards compatibility but is no longer used
+// The app now uses MainTabView as the root view
+
 struct ContentView: View {
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
-        }
-        .padding()
+        MainTabView()
     }
 }
 

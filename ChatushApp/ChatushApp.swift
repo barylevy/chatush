@@ -6,12 +6,18 @@
 //
 
 import SwiftUI
+import Factory
+import SwiftData
 
 @main
 struct ChatushApp: App {
+    
+    @Injected(\.modelContainer) private var modelContainer
+    
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            MainTabView()
         }
+        .modelContainer(modelContainer)
     }
 }
