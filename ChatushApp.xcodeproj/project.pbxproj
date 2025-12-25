@@ -12,7 +12,6 @@
 
 /* Begin PBXFileReference section */
 		07697E3F2EFC7D0100A0F381 /* ChatushApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ChatushApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		07697E532EFC7FB600A0F381 /* ChatushSDK */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = ChatushSDK; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -39,7 +38,6 @@
 			isa = PBXGroup;
 			children = (
 				07697E412EFC7D0100A0F381 /* ChatushApp */,
-				07697E532EFC7FB600A0F381 /* ChatushSDK */,
 				07697E402EFC7D0100A0F381 /* Products */,
 			);
 			sourceTree = "<group>";
