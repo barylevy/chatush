@@ -246,7 +246,8 @@ struct MessageBubble: View {
                         Text("•")
                             .font(.caption2)
                             .foregroundStyle(.secondary)
-                        Text("\(latencyMs)ms")
+                        let latencyInTenths = Double(latencyMs) / 1000.0
+                        Text(String(format: "%.1fs", latencyInTenths))
                             .font(.caption2)
                             .foregroundStyle(.secondary)
                     }
