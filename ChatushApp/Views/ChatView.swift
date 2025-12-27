@@ -3,8 +3,6 @@ import SwiftUI
 struct ChatView: View {
     @State private var viewModel = ChatViewModel()
     @State private var showingClearAlert = false
-    @State private var selectedMessages: Set<UUID> = []
-    @State private var isSelectionMode = false
     @State private var showChatSettings = false
     @Environment(\.dismiss) private var dismiss
 
@@ -64,16 +62,12 @@ struct ChatView: View {
                         ForEach(viewModel.messages) { message in
                             MessageBubble(
                                 message: message,
-                                isSelected: selectedMessages.contains(message.id),
-                                isSelectionMode: isSelectionMode
+                                isSelected: viewModel.selectedMessages.contains(message.id),
+                                isSelectionMode: viewModel.isSelectionMode
                             )
                             .onTapGesture {
-                                if isSelectionMode {
-                                    if selectedMessages.contains(message.id) {
-                                        selectedMessages.remove(message.id)
-                                    } else {
-                                        selectedMessages.insert(message.id)
-                                    }
+                                if viewModel.isSelectionMode {
+                                    viewModel.toggleMessageSelection(message.id)
                                 }
                             }
                             .id(message.id)
@@ -126,10 +120,10 @@ struct ChatView: View {
                 } label: {
                     Image(systemName: viewModel.isSending ? "hourglass" : "paperplane.circle")
                         .font(.title)
-                        .foregroundStyle(viewModel.inputText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? .gray : .blue)
+                        .foregroundStyle(viewModel.isInputValid ? .blue : .gray)
                         .padding(4)
                 }
-                .disabled(viewModel.inputText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || viewModel.isSending)
+                .disabled(!viewModel.isInputValid || viewModel.isSending)
             }
             .padding(.vertical, 12)
             .padding(.horizontal, 8)
@@ -152,21 +146,15 @@ struct ChatView: View {
         ToolbarItem(placement: .topBarTrailing) {
             Menu {
                 Button {
-                    isSelectionMode.toggle()
-                    if !isSelectionMode {
-                        selectedMessages.removeAll()
-                    }
+                    viewModel.toggleSelectionMode()
                 } label: {
-                    Label(isSelectionMode ? "Cancel Selection" : "Select Messages", systemImage: "checkmark.circle")
+                    Label(viewModel.isSelectionMode ? "Cancel Selection" : "Select Messages", systemImage: "checkmark.circle")
                 }
 
-                if isSelectionMode, !selectedMessages.isEmpty {
+                if viewModel.isSelectionMode, viewModel.hasSelectedMessages {
                     Button(role: .destructive) {
                         Task {
-                            let messagesToDelete = viewModel.messages.filter { selectedMessages.contains($0.id) }
-                            await viewModel.deleteMessages(messagesToDelete)
-                            selectedMessages.removeAll()
-                            isSelectionMode = false
+                            await viewModel.deleteSelectedMessages()
                         }
                     } label: {
                         Label("Delete Selected", systemImage: "trash")

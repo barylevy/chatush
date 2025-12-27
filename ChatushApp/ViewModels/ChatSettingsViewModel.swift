@@ -15,8 +15,15 @@ final class ChatSettingsViewModel {
     
     var currentConfig: LLMProviderConfig?
     var errorMessage: String?
+    var editedTitle: String = ""
+    
+    var isTitleValid: Bool {
+        !editedTitle.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
     
     func loadConfiguration(for conversation: Conversation) async {
+        editedTitle = conversation.title
+        
         do {
             guard let configurationsData = try await credentialsStorage.loadConfigurations() else {
                 // No configurations saved, use defaults
@@ -59,6 +66,18 @@ final class ChatSettingsViewModel {
             try await repository.deleteConversation(conversation)
         } catch {
             errorMessage = "Failed to delete conversation: \(error.localizedDescription)"
+        }
+    }
+    
+    func saveTitle(for conversation: Conversation) async {
+        guard isTitleValid else { return }
+        
+        conversation.title = editedTitle
+        
+        do {
+            try await repository.updateConversation(conversation)
+        } catch {
+            errorMessage = "Failed to save title: \(error.localizedDescription)"
         }
     }
 }

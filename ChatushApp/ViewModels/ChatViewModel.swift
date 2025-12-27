@@ -26,8 +26,18 @@ final class ChatViewModel {
     var errorMessage: String?
     var streamingMessage = ""
     var isStreaming = false
+    var selectedMessages: Set<UUID> = []
+    var isSelectionMode = false
 
     private var currentConfig: LLMProviderConfig?
+    
+    var isInputValid: Bool {
+        !inputText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
+    
+    var hasSelectedMessages: Bool {
+        !selectedMessages.isEmpty
+    }
 
     func loadConversation(_ conversation: Conversation) async {
         self.conversation = conversation
@@ -229,5 +239,27 @@ final class ChatViewModel {
         } catch {
             return false
         }
+    }
+    
+    func toggleSelectionMode() {
+        isSelectionMode.toggle()
+        if !isSelectionMode {
+            selectedMessages.removeAll()
+        }
+    }
+    
+    func toggleMessageSelection(_ messageId: UUID) {
+        if selectedMessages.contains(messageId) {
+            selectedMessages.remove(messageId)
+        } else {
+            selectedMessages.insert(messageId)
+        }
+    }
+    
+    func deleteSelectedMessages() async {
+        let messagesToDelete = messages.filter { selectedMessages.contains($0.id) }
+        await deleteMessages(messagesToDelete)
+        selectedMessages.removeAll()
+        isSelectionMode = false
     }
 }

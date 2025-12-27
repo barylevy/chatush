@@ -4,7 +4,6 @@ import Factory
 struct ChatSettingsView: View {
     @Bindable var conversation: Conversation
     @State private var viewModel = ChatSettingsViewModel()
-    @State private var editedTitle: String = ""
     @State private var showLLMConfiguration = false
     @State private var showDeleteAlert = false
     @Environment(\.dismiss) private var dismiss
@@ -13,10 +12,12 @@ struct ChatSettingsView: View {
         NavigationStack {
             Form {
                 Section("Chat Details") {
-                    TextField("Title", text: $editedTitle)
-                        .clearButton(text: $editedTitle)
+                    TextField("Title", text: $viewModel.editedTitle)
+                        .clearButton(text: $viewModel.editedTitle)
                         .onSubmit {
-                            saveTitle()
+                            Task {
+                                await viewModel.saveTitle(for: conversation)
+                            }
                         }
                 }
                 
@@ -70,8 +71,10 @@ struct ChatSettingsView: View {
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Done") {
-                        saveTitle()
-                        dismiss()
+                        Task {
+                            await viewModel.saveTitle(for: conversation)
+                            dismiss()
+                        }
                     }
                 }
                 
@@ -105,15 +108,8 @@ struct ChatSettingsView: View {
                 Text("Are you sure you want to delete this chat? This action cannot be undone.")
             }
             .task {
-                editedTitle = conversation.title
                 await viewModel.loadConfiguration(for: conversation)
             }
-        }
-    }
-    
-    private func saveTitle() {
-        if !editedTitle.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-            conversation.title = editedTitle
         }
     }
 }
