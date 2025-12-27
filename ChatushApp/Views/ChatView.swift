@@ -1,4 +1,5 @@
 import SwiftUI
+import Combine
 
 struct ChatView: View {
     @State private var viewModel = ChatViewModel()
@@ -83,6 +84,11 @@ struct ChatView: View {
                             )
                             .id("streaming")
                         }
+                        
+                        // Invisible bottom anchor for scrolling
+                        Color.clear
+                            .frame(height: 1)
+                            .id("bottom")
                     }
                     .padding()
                 }
@@ -99,6 +105,7 @@ struct ChatView: View {
                         proxy.scrollTo("streaming", anchor: .bottom)
                     }
                 }
+                .scrollToBottomOnKeyboard(proxy: proxy, bottomId: "bottom")
             }
 
             Divider()
