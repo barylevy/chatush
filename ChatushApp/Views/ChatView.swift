@@ -5,152 +5,193 @@ struct ChatView: View {
     @State private var showingClearAlert = false
     @State private var selectedMessages: Set<UUID> = []
     @State private var isSelectionMode = false
+    @State private var showChatSettings = false
+    @Environment(\.dismiss) private var dismiss
 
     var existingConversation: Conversation?
 
     var body: some View {
         NavigationStack {
-            VStack(spacing: 0) {
-                // Messages list
-                ScrollViewReader { proxy in
-                    ScrollView {
-                        LazyVStack(spacing: 12) {
-                            ForEach(viewModel.messages) { message in
-                                MessageBubble(
-                                    message: message,
-                                    isSelected: selectedMessages.contains(message.id),
-                                    isSelectionMode: isSelectionMode
-                                )
-                                .onTapGesture {
-                                    if isSelectionMode {
-                                        if selectedMessages.contains(message.id) {
-                                            selectedMessages.remove(message.id)
-                                        } else {
-                                            selectedMessages.insert(message.id)
-                                        }
+            mainContent
+                .navigationBarTitleDisplayMode(.inline)
+                .toolbar {
+                    toolbarContent
+                }
+                .alert("Clear Conversation", isPresented: $showingClearAlert) {
+                    Button("Cancel", role: .cancel) {}
+                    Button("Clear", role: .destructive) {
+                        Task {
+                            await viewModel.clearConversation()
+                        }
+                    }
+                } message: {
+                    Text("Are you sure you want to clear all messages?")
+                }
+                .sheet(isPresented: $showChatSettings, onDismiss: {
+                    Task {
+                        if let conversation = viewModel.conversation {
+                            let exists = await viewModel.conversationExists(conversation)
+                            if !exists {
+                                dismiss()
+                            }
+                        }
+                    }
+                }) {
+                    if let conversation = viewModel.conversation {
+                        ChatSettingsView(conversation: conversation)
+                    }
+                }
+                .overlay {
+                    errorOverlay
+                }
+                .task {
+                    if let conversation = existingConversation {
+                        await viewModel.loadConversation(conversation)
+                    } else {
+                        await viewModel.createNewConversation()
+                    }
+                }
+        }
+    }
+    
+    @ViewBuilder
+    private var mainContent: some View {
+        VStack(spacing: 0) {
+            // Messages list
+            ScrollViewReader { proxy in
+                ScrollView {
+                    LazyVStack(spacing: 12) {
+                        ForEach(viewModel.messages) { message in
+                            MessageBubble(
+                                message: message,
+                                isSelected: selectedMessages.contains(message.id),
+                                isSelectionMode: isSelectionMode
+                            )
+                            .onTapGesture {
+                                if isSelectionMode {
+                                    if selectedMessages.contains(message.id) {
+                                        selectedMessages.remove(message.id)
+                                    } else {
+                                        selectedMessages.insert(message.id)
                                     }
                                 }
-                                .id(message.id)
                             }
+                            .id(message.id)
+                        }
 
-                            // Streaming message
-                            if viewModel.isStreaming, !viewModel.streamingMessage.isEmpty {
-                                MessageBubble(
-                                    content: viewModel.streamingMessage,
-                                    isFromUser: false,
-                                    timestamp: Date(),
-                                    isStreaming: true
-                                )
-                                .id("streaming")
-                            }
-                        }
-                        .padding()
-                    }
-                    .dismissKeyboardOnScroll()
-                    .onChange(of: viewModel.messages.count) { _, _ in
-                        if let lastMessage = viewModel.messages.last {
-                            withAnimation {
-                                proxy.scrollTo(lastMessage.id, anchor: .bottom)
-                            }
+                        // Streaming message
+                        if viewModel.isStreaming, !viewModel.streamingMessage.isEmpty {
+                            MessageBubble(
+                                content: viewModel.streamingMessage,
+                                isFromUser: false,
+                                timestamp: Date(),
+                                isStreaming: true
+                            )
+                            .id("streaming")
                         }
                     }
-                    .onChange(of: viewModel.streamingMessage) { _, _ in
+                    .padding()
+                }
+                .dismissKeyboardOnScroll()
+                .onChange(of: viewModel.messages.count) { _, _ in
+                    if let lastMessage = viewModel.messages.last {
                         withAnimation {
-                            proxy.scrollTo("streaming", anchor: .bottom)
+                            proxy.scrollTo(lastMessage.id, anchor: .bottom)
                         }
+                    }
+                }
+                .onChange(of: viewModel.streamingMessage) { _, _ in
+                    withAnimation {
+                        proxy.scrollTo("streaming", anchor: .bottom)
+                    }
+                }
+            }
+
+            Divider()
+
+            // Input area
+            HStack(spacing: 12) {
+                TextField("Type a message...", text: $viewModel.inputText, axis: .vertical)
+                    .textFieldStyle(.roundedBorder)
+                    .lineLimit(1 ... 5)
+                    .disabled(viewModel.isSending)
+
+                Button {
+                    Task {
+                        await viewModel.sendMessage()
+                    }
+                } label: {
+                    Image(systemName: viewModel.isSending ? "hourglass" : "arrow.up.circle.fill")
+                        .font(.title2)
+                        .foregroundStyle(viewModel.inputText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? .gray : .blue)
+                }
+                .disabled(viewModel.inputText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || viewModel.isSending)
+            }
+            .padding()
+        }
+    }
+    
+    @ToolbarContentBuilder
+    private var toolbarContent: some ToolbarContent {
+        ToolbarItem(placement: .principal) {
+            Button {
+                if viewModel.conversation != nil {
+                    showChatSettings = true
+                }
+            } label: {
+                Text(viewModel.conversation?.title ?? "New Chat")
+                    .font(.headline)
+            }
+        }
+        
+        ToolbarItem(placement: .topBarTrailing) {
+            Menu {
+                Button {
+                    isSelectionMode.toggle()
+                    if !isSelectionMode {
+                        selectedMessages.removeAll()
+                    }
+                } label: {
+                    Label(isSelectionMode ? "Cancel Selection" : "Select Messages", systemImage: "checkmark.circle")
+                }
+
+                if isSelectionMode, !selectedMessages.isEmpty {
+                    Button(role: .destructive) {
+                        Task {
+                            let messagesToDelete = viewModel.messages.filter { selectedMessages.contains($0.id) }
+                            await viewModel.deleteMessages(messagesToDelete)
+                            selectedMessages.removeAll()
+                            isSelectionMode = false
+                        }
+                    } label: {
+                        Label("Delete Selected", systemImage: "trash")
                     }
                 }
 
                 Divider()
 
-                // Input area
-                HStack(spacing: 12) {
-                    TextField("Type a message...", text: $viewModel.inputText, axis: .vertical)
-                        .textFieldStyle(.roundedBorder)
-                        .lineLimit(1 ... 5)
-                        .disabled(viewModel.isSending)
-
-                    Button {
-                        Task {
-                            await viewModel.sendMessage()
-                        }
-                    } label: {
-                        Image(systemName: viewModel.isSending ? "hourglass" : "arrow.up.circle.fill")
-                            .font(.title2)
-                            .foregroundStyle(viewModel.inputText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? .gray : .blue)
-                    }
-                    .disabled(viewModel.inputText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || viewModel.isSending)
+                Button(role: .destructive) {
+                    showingClearAlert = true
+                } label: {
+                    Label("Clear All Messages", systemImage: "trash.fill")
                 }
-                .padding()
+            } label: {
+                Image(systemName: "ellipsis.circle")
             }
-            .navigationTitle(viewModel.conversation?.title ?? "New Chat")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Menu {
-                        Button {
-                            isSelectionMode.toggle()
-                            if !isSelectionMode {
-                                selectedMessages.removeAll()
-                            }
-                        } label: {
-                            Label(isSelectionMode ? "Cancel Selection" : "Select Messages", systemImage: "checkmark.circle")
-                        }
-
-                        if isSelectionMode, !selectedMessages.isEmpty {
-                            Button(role: .destructive) {
-                                Task {
-                                    let messagesToDelete = viewModel.messages.filter { selectedMessages.contains($0.id) }
-                                    await viewModel.deleteMessages(messagesToDelete)
-                                    selectedMessages.removeAll()
-                                    isSelectionMode = false
-                                }
-                            } label: {
-                                Label("Delete Selected", systemImage: "trash")
-                            }
-                        }
-
-                        Divider()
-
-                        Button(role: .destructive) {
-                            showingClearAlert = true
-                        } label: {
-                            Label("Clear All Messages", systemImage: "trash.fill")
-                        }
-                    } label: {
-                        Image(systemName: "ellipsis.circle")
-                    }
-                }
-            }
-            .alert("Clear Conversation", isPresented: $showingClearAlert) {
-                Button("Cancel", role: .cancel) {}
-                Button("Clear", role: .destructive) {
-                    Task {
-                        await viewModel.clearConversation()
-                    }
-                }
-            } message: {
-                Text("Are you sure you want to clear all messages?")
-            }
-            .overlay {
-                if let errorMessage = viewModel.errorMessage {
-                    VStack {
-                        Spacer()
-                        Text(errorMessage)
-                            .foregroundStyle(.white)
-                            .padding()
-                            .background(.red)
-                            .clipShape(RoundedRectangle(cornerRadius: 10))
-                            .padding()
-                    }
-                }
-            }
-            .task {
-                if let conversation = existingConversation {
-                    await viewModel.loadConversation(conversation)
-                } else {
-                    await viewModel.createNewConversation()
-                }
+        }
+    }
+    
+    @ViewBuilder
+    private var errorOverlay: some View {
+        if let errorMessage = viewModel.errorMessage {
+            VStack {
+                Spacer()
+                Text(errorMessage)
+                    .foregroundStyle(.white)
+                    .padding()
+                    .background(.red)
+                    .clipShape(RoundedRectangle(cornerRadius: 10))
+                    .padding()
             }
         }
     }

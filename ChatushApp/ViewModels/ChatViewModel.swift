@@ -221,4 +221,13 @@ final class ChatViewModel {
             errorMessage = "Failed to update provider: \(error.localizedDescription)"
         }
     }
+    
+    func conversationExists(_ conversation: Conversation) async -> Bool {
+        do {
+            let fetchedConversation = try await repository.fetchConversation(id: conversation.id)
+            return fetchedConversation != nil
+        } catch {
+            return false
+        }
+    }
 }
