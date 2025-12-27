@@ -1,9 +1,10 @@
 import SwiftUI
 
-struct HistoryView: View {
+struct ConversationsView: View {
     @State private var viewModel = HistoryViewModel()
     @State private var selectedConversation: Conversation?
     @State private var showChat = false
+    @State private var showNewChat = false
 
     var body: some View {
         NavigationStack {
@@ -17,20 +18,22 @@ struct HistoryView: View {
                 } else {
                     List {
                         ForEach(viewModel.conversations) { conversation in
-                            ConversationRow(conversation: conversation)
-                                .onTapGesture {
-                                    selectedConversation = conversation
-                                    showChat = true
-                                }
-                                .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                                    Button(role: .destructive) {
-                                        Task {
-                                            await viewModel.deleteConversation(conversation)
-                                        }
-                                    } label: {
-                                        Label("Delete", systemImage: "trash")
+                            Button {
+                                selectedConversation = conversation
+                                showChat = true
+                            } label: {
+                                ConversationRow(conversation: conversation)
+                            }
+                            .buttonStyle(.plain)
+                            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                                Button(role: .destructive) {
+                                    Task {
+                                        await viewModel.deleteConversation(conversation)
                                     }
+                                } label: {
+                                    Label("Delete", systemImage: "trash")
                                 }
+                            }
                                 .onAppear {
                                     if conversation == viewModel.conversations.last {
                                         Task {
@@ -53,11 +56,23 @@ struct HistoryView: View {
                     }
                 }
             }
-            .navigationTitle("Chat History")
+            .navigationTitle("Conversations")
+            .toolbar {
+                ToolbarItem(placement: .primaryAction) {
+                    Button {
+                        showNewChat = true
+                    } label: {
+                        Image(systemName: "square.and.pencil")
+                    }
+                }
+            }
             .navigationDestination(isPresented: $showChat) {
                 if let conversation = selectedConversation {
                     ChatView(existingConversation: conversation)
                 }
+            }
+            .navigationDestination(isPresented: $showNewChat) {
+                ChatView(existingConversation: nil)
             }
             .overlay {
                 if let errorMessage = viewModel.errorMessage {
@@ -88,7 +103,7 @@ struct ConversationRow: View {
                 Text(conversation.title)
                     .font(.headline)
                 Spacer()
-                Text(conversation.lastMessageDate.formatted(.relative(presentation: .named)))
+                Text(ConversationDateFormatter.formatDate(conversation.lastMessageDate))
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
@@ -110,5 +125,5 @@ struct ConversationRow: View {
 }
 
 #Preview {
-    HistoryView()
+    ConversationsView()
 }

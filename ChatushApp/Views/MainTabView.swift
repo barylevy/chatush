@@ -5,29 +5,23 @@ struct MainTabView: View {
 
     var body: some View {
         TabView(selection: $selectedTab) {
-            HistoryView()
+            ConversationsView()
                 .tabItem {
-                    Label("History", systemImage: "clock.fill")
+                    Label("Chats", systemImage: "message.fill")
                 }
                 .tag(0)
-
-            ChatView()
-                .tabItem {
-                    Label("Chat", systemImage: "message.fill")
-                }
-                .tag(1)
 
             SettingsView()
                 .tabItem {
                     Label("Settings", systemImage: "gearshape.fill")
                 }
-                .tag(2)
+                .tag(1)
 
             AboutView()
                 .tabItem {
                     Label("About", systemImage: "info.circle.fill")
                 }
-                .tag(3)
+                .tag(2)
         }
     }
 }
