@@ -125,6 +125,7 @@ struct SettingsView: View {
                 }
             }
             .navigationTitle("Settings")
+            .dismissKeyboardOnScroll()
             .overlay {
                 if let errorMessage = viewModel.errorMessage {
                     VStack {
