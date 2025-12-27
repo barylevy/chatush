@@ -14,6 +14,7 @@ struct ChatSettingsView: View {
             Form {
                 Section("Chat Details") {
                     TextField("Title", text: $editedTitle)
+                        .clearButton(text: $editedTitle)
                         .onSubmit {
                             saveTitle()
                         }

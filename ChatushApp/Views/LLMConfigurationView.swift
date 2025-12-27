@@ -15,6 +15,7 @@ struct LLMConfigurationView: View {
                 // Name Section
                 Section("Configuration Name") {
                     TextField("Name", text: $viewModel.config.name)
+                        .clearButton(text: $viewModel.config.name)
                         .autocorrectionDisabled()
                 }
 
@@ -27,6 +28,7 @@ struct LLMConfigurationView: View {
                     .pickerStyle(.segmented)
 
                     TextField("Model", text: $viewModel.config.model)
+                        .clearButton(text: $viewModel.config.model)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
                 }
@@ -42,6 +44,10 @@ struct LLMConfigurationView: View {
                         .autocorrectionDisabled()
 
                         TextField("Endpoint (Optional)", text: Binding(
+                            get: { viewModel.config.endpoint ?? "" },
+                            set: { viewModel.config.endpoint = $0.isEmpty ? nil : $0 }
+                        ))
+                        .clearButton(text: Binding(
                             get: { viewModel.config.endpoint ?? "" },
                             set: { viewModel.config.endpoint = $0.isEmpty ? nil : $0 }
                         ))

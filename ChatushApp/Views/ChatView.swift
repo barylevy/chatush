@@ -110,9 +110,12 @@ struct ChatView: View {
             Divider()
 
             // Input area
-            HStack(spacing: 12) {
+            HStack() {
                 TextField("Type a message...", text: $viewModel.inputText, axis: .vertical)
-                    .textFieldStyle(.roundedBorder)
+                    .clearButton(text: $viewModel.inputText)
+                    .padding(12)
+                    .background(Color(.systemGray6))
+                    .clipShape(RoundedRectangle(cornerRadius: 16))
                     .lineLimit(1 ... 5)
                     .disabled(viewModel.isSending)
 
@@ -121,13 +124,15 @@ struct ChatView: View {
                         await viewModel.sendMessage()
                     }
                 } label: {
-                    Image(systemName: viewModel.isSending ? "hourglass" : "arrow.up.circle.fill")
-                        .font(.title2)
+                    Image(systemName: viewModel.isSending ? "hourglass" : "paperplane.circle")
+                        .font(.title)
                         .foregroundStyle(viewModel.inputText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? .gray : .blue)
+                        .padding(4)
                 }
                 .disabled(viewModel.inputText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || viewModel.isSending)
             }
-            .padding()
+            .padding(.vertical, 12)
+            .padding(.horizontal, 8)
         }
     }
     

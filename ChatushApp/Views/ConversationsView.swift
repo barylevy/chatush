@@ -101,8 +101,9 @@ struct ConversationRow: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
-                Text(conversation.title)
+                Text(conversation.title.replacingOccurrences(of: "\n", with: " "))
                     .font(.headline)
+                    .lineLimit(1)
                 Spacer()
                 Text(ConversationDateFormatter.formatDate(conversation.lastMessageDate))
                     .font(.caption)
