@@ -3,7 +3,7 @@ import Foundation
 /// UserDefaults-based credentials storage implementation
 final class UserDefaultsCredentialsStorage: CredentialsStorageProtocol, @unchecked Sendable {
     nonisolated init() {}
-    
+
     private let key = "llm-configurations-data"
     private let userDefaults = UserDefaults.standard
 
@@ -11,7 +11,8 @@ final class UserDefaultsCredentialsStorage: CredentialsStorageProtocol, @uncheck
         let encoder = JSONEncoder()
         let jsonData = try await Task.detached {
             try encoder.encode(data)
-        }.value
+        }
+        .value
         userDefaults.set(jsonData, forKey: key)
     }
 
@@ -23,7 +24,8 @@ final class UserDefaultsCredentialsStorage: CredentialsStorageProtocol, @uncheck
         let decoder = JSONDecoder()
         return try await Task.detached {
             try decoder.decode(LLMConfigurationsData.self, from: jsonData)
-        }.value
+        }
+        .value
     }
 
     nonisolated func deleteConfigurations() async throws {

@@ -10,7 +10,6 @@ enum StorageType: String, CaseIterable {
 
 /// Main dependency injection container using Factory
 extension Container {
-
     var storageType: Factory<StorageType> {
         self { .keychain }
             .scope(.shared)
@@ -35,7 +34,7 @@ extension Container {
     }
 
     var chatushSDK: Factory<ChatushSDK> {
-        self { 
+        self {
             ChatushSDK(networkClient: self.networkClient())
         }
         .scope(.singleton)

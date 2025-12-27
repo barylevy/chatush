@@ -1,10 +1,10 @@
-import SwiftUI
 import Combine
+import SwiftUI
 
 extension View {
     /// Dismisses the keyboard when the user scrolls down
     func dismissKeyboardOnScroll() -> some View {
-        self.simultaneousGesture(
+        simultaneousGesture(
             DragGesture().onChanged { value in
                 // Only dismiss keyboard when scrolling down (positive translation.height)
                 if value.translation.height > 0 {
@@ -13,12 +13,12 @@ extension View {
             }
         )
     }
-    
+
     /// Adds a clear button that appears when the textfield has text and is focused
     func clearButton(text: Binding<String>) -> some View {
         modifier(ClearButton(text: text))
     }
-    
+
     /// Scrolls to the bottom (last visible item) when the keyboard appears
     /// - Parameters:
     ///   - proxy: ScrollViewReader proxy for scrolling
@@ -34,13 +34,13 @@ extension View {
 struct ClearButton: ViewModifier {
     @Binding var text: String
     @FocusState private var isFocused: Bool
-    
+
     func body(content: Content) -> some View {
         HStack {
             content
                 .focused($isFocused)
-            
-            if !text.isEmpty && isFocused {
+
+            if !text.isEmpty, isFocused {
                 Button {
                     text = ""
                 } label: {
@@ -57,7 +57,7 @@ struct KeyboardScrollModifier: ViewModifier {
     let proxy: ScrollViewProxy
     let bottomId: any Hashable
     @State private var keyboardHeight: CGFloat = 0
-    
+
     func body(content: Content) -> some View {
         content
             .onChange(of: keyboardHeight) { oldHeight, newHeight in

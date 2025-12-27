@@ -14,29 +14,29 @@ final class LLMConfigurationViewModel {
     var isLoading = false
     var errorMessage: String?
     var successMessage: String?
-    
+
     private let originalConfig: LLMProviderConfig
     private let onSave: (LLMProviderConfig) -> Void
 
     init(config: LLMProviderConfig, onSave: @escaping (LLMProviderConfig) -> Void) {
         self.config = config
-        self.originalConfig = config
+        originalConfig = config
         self.onSave = onSave
     }
-    
+
     func save() {
         onSave(config)
     }
-    
+
     func cancel() -> Bool {
         // Return true if there are unsaved changes
-        return config.name != originalConfig.name ||
-               config.provider != originalConfig.provider ||
-               config.model != originalConfig.model ||
-               config.apiKey != originalConfig.apiKey ||
-               config.endpoint != originalConfig.endpoint ||
-               config.temperature != originalConfig.temperature ||
-               config.maxTokens != originalConfig.maxTokens
+        config.name != originalConfig.name ||
+            config.provider != originalConfig.provider ||
+            config.model != originalConfig.model ||
+            config.apiKey != originalConfig.apiKey ||
+            config.endpoint != originalConfig.endpoint ||
+            config.temperature != originalConfig.temperature ||
+            config.maxTokens != originalConfig.maxTokens
     }
 
     func testConnection() async {

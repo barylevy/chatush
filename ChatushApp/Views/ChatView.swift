@@ -1,5 +1,5 @@
-import SwiftUI
 import Combine
+import SwiftUI
 
 struct ChatView: View {
     @State private var viewModel = ChatViewModel()
@@ -59,7 +59,7 @@ struct ChatView: View {
                 }
         }
     }
-    
+
     @ViewBuilder
     private var mainContent: some View {
         VStack(spacing: 0) {
@@ -91,7 +91,7 @@ struct ChatView: View {
                             )
                             .id("streaming")
                         }
-                        
+
                         // Invisible bottom anchor for scrolling
                         Color.clear
                             .frame(height: 1)
@@ -118,7 +118,7 @@ struct ChatView: View {
             Divider()
 
             // Input area
-            HStack() {
+            HStack {
                 TextField("Type a message...", text: $viewModel.inputText, axis: .vertical)
                     .clearButton(text: $viewModel.inputText)
                     .padding(12)
@@ -143,7 +143,7 @@ struct ChatView: View {
             .padding(.horizontal, 8)
         }
     }
-    
+
     @ToolbarContentBuilder
     private var toolbarContent: some ToolbarContent {
         ToolbarItem(placement: .principal) {
@@ -156,7 +156,7 @@ struct ChatView: View {
                     .font(.headline)
             }
         }
-        
+
         ToolbarItem(placement: .topBarTrailing) {
             Menu {
                 Button {
@@ -187,7 +187,7 @@ struct ChatView: View {
             }
         }
     }
-    
+
     @ViewBuilder
     private var errorOverlay: some View {
         if let errorMessage = viewModel.errorMessage {

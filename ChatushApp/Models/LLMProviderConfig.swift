@@ -21,7 +21,7 @@ struct LLMProviderConfig: Codable, Sendable, Identifiable {
         temperature: 0.7,
         maxTokens: 2000
     )
-    
+
     static let openAIConfig = LLMProviderConfig(
         id: UUID(),
         name: "OpenAI",
@@ -32,6 +32,6 @@ struct LLMProviderConfig: Codable, Sendable, Identifiable {
         temperature: 0.7,
         maxTokens: 2000
     )
-    
+
     static let defaultConfigs = [mockConfig, openAIConfig]
 }

@@ -16,7 +16,7 @@ final class HistoryViewModel {
     private let pageSize = 20
     private var currentOffset = 0
     private var hasMorePages = true
-    
+
     func loadInitialConversations() async {
         guard !isLoading else { return }
 

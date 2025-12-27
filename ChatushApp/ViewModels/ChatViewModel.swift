@@ -30,11 +30,11 @@ final class ChatViewModel {
     var isSelectionMode = false
 
     private var currentConfig: LLMProviderConfig?
-    
+
     var isInputValid: Bool {
         !inputText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
-    
+
     var hasSelectedMessages: Bool {
         !selectedMessages.isEmpty
     }
@@ -46,18 +46,18 @@ final class ChatViewModel {
         // Load config matching the conversation's provider and model
         await loadCurrentConfig()
     }
-    
+
     private func loadCurrentConfig() async {
         guard let conversation else { return }
-        
+
         do {
             if let configurationsData = try await credentialsStorage.loadConfigurations() {
                 // Try to find a config matching the conversation's provider and model
                 currentConfig = configurationsData.configurations.first { config in
                     config.provider == conversation.providerName &&
-                    config.model == conversation.modelName
+                        config.model == conversation.modelName
                 }
-                
+
                 // Fallback to active config or default
                 if currentConfig == nil {
                     currentConfig = configurationsData.activeConfig() ?? LLMProviderConfig.mockConfig
@@ -78,7 +78,7 @@ final class ChatViewModel {
             } else {
                 currentConfig = LLMProviderConfig.mockConfig
             }
-            
+
             guard let config = currentConfig else {
                 currentConfig = LLMProviderConfig.mockConfig
                 return
@@ -246,22 +246,22 @@ final class ChatViewModel {
             errorMessage = "Failed to update provider: \(error.localizedDescription)"
         }
     }
-    
+
     func updateConfiguration(_ newConfig: LLMProviderConfig) async {
         currentConfig = newConfig
-        
+
         guard let conversation else { return }
-        
+
         conversation.providerName = newConfig.provider
         conversation.modelName = newConfig.model
-        
+
         do {
             try await repository.updateConversation(conversation)
         } catch {
             errorMessage = "Failed to update provider: \(error.localizedDescription)"
         }
     }
-    
+
     func conversationExists(_ conversation: Conversation) async -> Bool {
         do {
             let fetchedConversation = try await repository.fetchConversation(id: conversation.id)
@@ -270,14 +270,14 @@ final class ChatViewModel {
             return false
         }
     }
-    
+
     func toggleSelectionMode() {
         isSelectionMode.toggle()
         if !isSelectionMode {
             selectedMessages.removeAll()
         }
     }
-    
+
     func toggleMessageSelection(_ messageId: UUID) {
         if selectedMessages.contains(messageId) {
             selectedMessages.remove(messageId)
@@ -285,7 +285,7 @@ final class ChatViewModel {
             selectedMessages.insert(messageId)
         }
     }
-    
+
     func deleteSelectedMessages() async {
         let messagesToDelete = messages.filter { selectedMessages.contains($0.id) }
         await deleteMessages(messagesToDelete)

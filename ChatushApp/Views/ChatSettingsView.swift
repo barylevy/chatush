@@ -1,5 +1,5 @@
-import SwiftUI
 import Factory
+import SwiftUI
 
 struct ChatSettingsView: View {
     @Bindable var conversation: Conversation
@@ -7,14 +7,14 @@ struct ChatSettingsView: View {
     @State private var showLLMConfiguration = false
     @State private var showDeleteAlert = false
     @Environment(\.dismiss) private var dismiss
-    
+
     let onConfigurationChanged: ((LLMProviderConfig) -> Void)?
-    
+
     init(conversation: Conversation, onConfigurationChanged: ((LLMProviderConfig) -> Void)? = nil) {
         self.conversation = conversation
         self.onConfigurationChanged = onConfigurationChanged
     }
-    
+
     var body: some View {
         NavigationStack {
             Form {
@@ -40,9 +40,9 @@ struct ChatSettingsView: View {
             }
         }
     }
-    
+
     // MARK: - Sections
-    
+
     @ViewBuilder
     private var chatDetailsSection: some View {
         Section("Chat Details") {
@@ -55,7 +55,7 @@ struct ChatSettingsView: View {
                 }
         }
     }
-    
+
     @ViewBuilder
     private var llmConfigurationSection: some View {
         Section("LLM Configuration") {
@@ -64,13 +64,13 @@ struct ChatSettingsView: View {
             } label: {
                 llmConfigurationLabel
             }
-            
+
             Text("Future messages will use the selected provider and model")
                 .font(.caption)
                 .foregroundStyle(.secondary)
         }
     }
-    
+
     @ViewBuilder
     private var llmConfigurationLabel: some View {
         HStack {
@@ -82,9 +82,9 @@ struct ChatSettingsView: View {
                     .font(.body)
                     .foregroundStyle(.primary)
             }
-            
+
             Spacer()
-            
+
             VStack(alignment: .trailing, spacing: 4) {
                 Text("Model")
                     .font(.caption)
@@ -93,14 +93,14 @@ struct ChatSettingsView: View {
                     .font(.body)
                     .foregroundStyle(.primary)
             }
-            
+
             Image(systemName: "chevron.right")
                 .font(.caption)
                 .foregroundStyle(.secondary)
                 .padding(.leading, 8)
         }
     }
-    
+
     @ViewBuilder
     private var deleteSection: some View {
         Section {
@@ -115,9 +115,9 @@ struct ChatSettingsView: View {
             }
         }
     }
-    
+
     // MARK: - Toolbar
-    
+
     @ToolbarContentBuilder
     private var toolbarContent: some ToolbarContent {
         ToolbarItem(placement: .confirmationAction) {
@@ -128,16 +128,16 @@ struct ChatSettingsView: View {
                 }
             }
         }
-        
+
         ToolbarItem(placement: .cancellationAction) {
             Button("Cancel") {
                 dismiss()
             }
         }
     }
-    
+
     // MARK: - Sheets & Alerts
-    
+
     @ViewBuilder
     private var llmConfigurationSheet: some View {
         if let config = viewModel.currentConfig {
@@ -152,7 +152,7 @@ struct ChatSettingsView: View {
             )
         }
     }
-    
+
     @ViewBuilder
     private var deleteAlertButtons: some View {
         Button("Cancel", role: .cancel) {}
@@ -163,7 +163,7 @@ struct ChatSettingsView: View {
             }
         }
     }
-    
+
     private var deleteAlertMessage: some View {
         Text("Are you sure you want to delete this chat? This action cannot be undone.")
     }

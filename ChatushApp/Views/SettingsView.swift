@@ -30,9 +30,9 @@ struct SettingsView: View {
             }
         }
     }
-    
+
     // MARK: - Sections
-    
+
     @ViewBuilder
     private var storageTypeSection: some View {
         Section("Storage Type") {
@@ -50,7 +50,7 @@ struct SettingsView: View {
                 .foregroundStyle(.secondary)
         }
     }
-    
+
     @ViewBuilder
     private var configurationsSection: some View {
         Section("LLM Configurations") {
@@ -59,7 +59,7 @@ struct SettingsView: View {
             }
         }
     }
-    
+
     @ViewBuilder
     private func configurationRow(for config: LLMProviderConfig) -> some View {
         HStack {
@@ -73,7 +73,7 @@ struct SettingsView: View {
             viewModel.setActiveConfiguration(config.id)
         }
     }
-    
+
     @ViewBuilder
     private func activeIndicator(for config: LLMProviderConfig) -> some View {
         if config.id == viewModel.configurationsData.activeConfigId {
@@ -84,19 +84,19 @@ struct SettingsView: View {
                 .foregroundStyle(.clear)
         }
     }
-    
+
     @ViewBuilder
     private func configurationInfo(for config: LLMProviderConfig) -> some View {
         VStack(alignment: .leading, spacing: 4) {
             Text(config.name)
                 .font(.headline)
-            
+
             Text("\(config.provider) · \(config.model)")
                 .font(.caption)
                 .foregroundStyle(.secondary)
         }
     }
-    
+
     @ViewBuilder
     private func editButton(for config: LLMProviderConfig) -> some View {
         Button {
@@ -108,7 +108,7 @@ struct SettingsView: View {
         }
         .buttonStyle(.plain)
     }
-    
+
     @ViewBuilder
     private var actionsSection: some View {
         Section {
@@ -124,16 +124,16 @@ struct SettingsView: View {
             .disabled(viewModel.isLoading)
         }
     }
-    
+
     // MARK: - Sheets & Alerts
-    
+
     @ViewBuilder
     private func configurationSheet(for config: LLMProviderConfig) -> some View {
         LLMConfigurationView(config: config) { updatedConfig in
             viewModel.updateConfiguration(updatedConfig)
         }
     }
-    
+
     @ViewBuilder
     private var resetAlertButtons: some View {
         Button("Reset", role: .destructive) {
@@ -143,13 +143,13 @@ struct SettingsView: View {
         }
         Button("Cancel", role: .cancel) {}
     }
-    
+
     private var resetAlertMessage: some View {
         Text("This will reset all configurations to default. Are you sure?")
     }
-    
+
     // MARK: - Overlays
-    
+
     @ViewBuilder
     private var messagesOverlay: some View {
         if let errorMessage = viewModel.errorMessage {
@@ -168,7 +168,7 @@ struct SettingsView: View {
                 }
         }
     }
-    
+
     @ViewBuilder
     private func messageToast(message: String, color: Color) -> some View {
         VStack {

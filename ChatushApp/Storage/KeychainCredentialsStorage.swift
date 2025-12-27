@@ -4,7 +4,7 @@ import Security
 /// Keychain-based credentials storage implementation
 final class KeychainCredentialsStorage: CredentialsStorageProtocol, @unchecked Sendable {
     nonisolated init() {}
-    
+
     private let service = "com.chatush.credentials"
     private let account = "llm-configurations-data"
 
@@ -12,7 +12,8 @@ final class KeychainCredentialsStorage: CredentialsStorageProtocol, @unchecked S
         let encoder = JSONEncoder()
         let jsonData = try await Task.detached {
             try encoder.encode(data)
-        }.value
+        }
+        .value
 
         // Delete existing item first
         try? await deleteConfigurations()
@@ -55,7 +56,8 @@ final class KeychainCredentialsStorage: CredentialsStorageProtocol, @unchecked S
         let decoder = JSONDecoder()
         return try await Task.detached {
             try decoder.decode(LLMConfigurationsData.self, from: jsonData)
-        }.value
+        }
+        .value
     }
 
     nonisolated func deleteConfigurations() async throws {

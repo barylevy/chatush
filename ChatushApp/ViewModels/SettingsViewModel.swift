@@ -58,15 +58,15 @@ final class SettingsViewModel {
         if let index = configurationsData.configurations.firstIndex(where: { $0.id == config.id }) {
             configurationsData.configurations[index] = config
         }
-        
+
         Task {
             await saveConfigurations()
         }
     }
-    
+
     func setActiveConfiguration(_ id: UUID) {
         configurationsData.activeConfigId = id
-        
+
         Task {
             await saveConfigurations()
         }

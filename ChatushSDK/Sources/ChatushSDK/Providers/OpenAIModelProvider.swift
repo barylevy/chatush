@@ -4,7 +4,7 @@ import Foundation
 @available(iOS 18.0, macOS 15.0, *)
 public final class OpenAIModelProvider: ModelProviderProtocol, Sendable {
     public var supportsStreaming: Bool { true }
-    
+
     private let networkClient: NetworkClientProtocol
 
     public init(networkClient: NetworkClientProtocol = NetworkClient()) {
@@ -50,7 +50,7 @@ public final class OpenAIModelProvider: ModelProviderProtocol, Sendable {
 
         // Send request through network layer
         let (data, httpResponse) = try await networkClient.request(request)
-        
+
         // Handle errors
         if httpResponse.statusCode != 200 {
             let errorMessage = String(data: data, encoding: .utf8) ?? "Unknown error"
@@ -116,12 +116,12 @@ public final class OpenAIModelProvider: ModelProviderProtocol, Sendable {
 
                     // Use network layer for streaming
                     let stream = try await networkClient.streamRequest(request)
-                    
+
                     for try await data in stream {
                         guard let line = String(data: data, encoding: .utf8) else {
                             continue
                         }
-                        
+
                         if line.hasPrefix("data: ") {
                             let jsonString = String(line.dropFirst(6))
 
@@ -151,4 +151,3 @@ public final class OpenAIModelProvider: ModelProviderProtocol, Sendable {
         }
     }
 }
-               

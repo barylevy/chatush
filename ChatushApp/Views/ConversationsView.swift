@@ -35,13 +35,13 @@ struct ConversationsView: View {
                                     Label("Delete", systemImage: "trash")
                                 }
                             }
-                                .onAppear {
-                                    if conversation == viewModel.conversations.last {
-                                        Task {
-                                            await viewModel.loadMoreConversations()
-                                        }
+                            .onAppear {
+                                if conversation == viewModel.conversations.last {
+                                    Task {
+                                        await viewModel.loadMoreConversations()
                                     }
                                 }
+                            }
                         }
 
                         if viewModel.isLoading {
