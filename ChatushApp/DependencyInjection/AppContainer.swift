@@ -34,9 +34,16 @@ extension Container {
 
     // MARK: - SDK
 
-    var chatushSDK: Factory<ChatushSDK> {
-        self { ChatushSDK() }
+    var networkClient: Factory<NetworkClientProtocol> {
+        self { NetworkClient() }
             .scope(.singleton)
+    }
+
+    var chatushSDK: Factory<ChatushSDK> {
+        self { 
+            ChatushSDK(networkClient: self.networkClient())
+        }
+        .scope(.singleton)
     }
 
     // MARK: - Repositories

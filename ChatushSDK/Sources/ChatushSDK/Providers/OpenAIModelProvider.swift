@@ -4,8 +4,12 @@ import Foundation
 @available(iOS 18.0, macOS 15.0, *)
 public final class OpenAIModelProvider: ModelProviderProtocol, Sendable {
     public var supportsStreaming: Bool { true }
+    
+    private let networkClient: NetworkClientProtocol
 
-    public init() {}
+    public init(networkClient: NetworkClientProtocol = NetworkClient()) {
+        self.networkClient = networkClient
+    }
 
     public func sendPrompt(messages: [ChatMessage], config: ModelConfiguration) async throws -> ModelResponse {
         let startTime = Date()
@@ -44,14 +48,11 @@ public final class OpenAIModelProvider: ModelProviderProtocol, Sendable {
 
         request.httpBody = try JSONSerialization.data(withJSONObject: requestBody)
 
-        // Send request
-        let (data, response) = try await URLSession.shared.data(for: request)
-
-        guard let httpResponse = response as? HTTPURLResponse else {
-            throw ModelProviderError.invalidResponse
-        }
-
-        guard httpResponse.statusCode == 200 else {
+        // Send request through network layer
+        let (data, httpResponse) = try await networkClient.request(request)
+        
+        // Handle errors
+        if httpResponse.statusCode != 200 {
             let errorMessage = String(data: data, encoding: .utf8) ?? "Unknown error"
             throw ModelProviderError.apiError(statusCode: httpResponse.statusCode, message: errorMessage)
         }
@@ -113,17 +114,14 @@ public final class OpenAIModelProvider: ModelProviderProtocol, Sendable {
 
                     request.httpBody = try JSONSerialization.data(withJSONObject: requestBody)
 
-                    let (bytes, response) = try await URLSession.shared.bytes(for: request)
-
-                    guard let httpResponse = response as? HTTPURLResponse else {
-                        throw ModelProviderError.invalidResponse
-                    }
-
-                    guard httpResponse.statusCode == 200 else {
-                        throw ModelProviderError.apiError(statusCode: httpResponse.statusCode, message: "Streaming failed")
-                    }
-
-                    for try await line in bytes.lines {
+                    // Use network layer for streaming
+                    let stream = try await networkClient.streamRequest(request)
+                    
+                    for try await data in stream {
+                        guard let line = String(data: data, encoding: .utf8) else {
+                            continue
+                        }
+                        
                         if line.hasPrefix("data: ") {
                             let jsonString = String(line.dropFirst(6))
 
@@ -153,3 +151,4 @@ public final class OpenAIModelProvider: ModelProviderProtocol, Sendable {
         }
     }
 }
+               

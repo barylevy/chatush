@@ -5,8 +5,8 @@ import Foundation
 public actor ChatushSDK {
     private let router: ModelRouter
 
-    public init() {
-        router = ModelRouter()
+    public init(networkClient: NetworkClientProtocol? = nil) {
+        router = ModelRouter(networkClient: networkClient ?? NetworkClient())
     }
 
     /// Send a message and get a response

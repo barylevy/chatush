@@ -4,10 +4,12 @@ import Foundation
 @available(iOS 18.0, macOS 15.0, *)
 public actor ModelRouter {
     private var providers: [String: ModelProviderProtocol] = [:]
+    private let networkClient: NetworkClientProtocol
 
-    public init() {
-        // Register default providers
-        providers["openai"] = OpenAIModelProvider()
+    public init(networkClient: NetworkClientProtocol? = nil) {
+        self.networkClient = networkClient ?? NetworkClient()
+        // Register default providers with network client
+        providers["openai"] = OpenAIModelProvider(networkClient: self.networkClient)
         providers["mock"] = MockModelProvider()
     }
 
