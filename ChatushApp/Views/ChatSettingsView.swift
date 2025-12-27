@@ -8,6 +8,13 @@ struct ChatSettingsView: View {
     @State private var showDeleteAlert = false
     @Environment(\.dismiss) private var dismiss
     
+    let onConfigurationChanged: ((LLMProviderConfig) -> Void)?
+    
+    init(conversation: Conversation, onConfigurationChanged: ((LLMProviderConfig) -> Void)? = nil) {
+        self.conversation = conversation
+        self.onConfigurationChanged = onConfigurationChanged
+    }
+    
     var body: some View {
         NavigationStack {
             Form {
@@ -52,6 +59,10 @@ struct ChatSettingsView: View {
                                 .padding(.leading, 8)
                         }
                     }
+                    
+                    Text("Future messages will use the selected provider and model")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
                 }
                 
                 Section {
@@ -91,6 +102,7 @@ struct ChatSettingsView: View {
                         onSave: { newConfig in
                             Task {
                                 await viewModel.updateConfiguration(newConfig, for: conversation)
+                                onConfigurationChanged?(newConfig)
                             }
                         }
                     )

@@ -43,10 +43,25 @@ final class ChatViewModel {
         self.conversation = conversation
         messages = conversation.messages.sorted { $0.timestamp < $1.timestamp }
 
-        // Load active config
+        // Load config matching the conversation's provider and model
+        await loadCurrentConfig()
+    }
+    
+    private func loadCurrentConfig() async {
+        guard let conversation else { return }
+        
         do {
             if let configurationsData = try await credentialsStorage.loadConfigurations() {
-                currentConfig = configurationsData.activeConfig()
+                // Try to find a config matching the conversation's provider and model
+                currentConfig = configurationsData.configurations.first { config in
+                    config.provider == conversation.providerName &&
+                    config.model == conversation.modelName
+                }
+                
+                // Fallback to active config or default
+                if currentConfig == nil {
+                    currentConfig = configurationsData.activeConfig() ?? LLMProviderConfig.mockConfig
+                }
             } else {
                 currentConfig = LLMProviderConfig.mockConfig
             }
@@ -225,6 +240,21 @@ final class ChatViewModel {
         conversation.providerName = newConfig.provider
         conversation.modelName = newConfig.model
 
+        do {
+            try await repository.updateConversation(conversation)
+        } catch {
+            errorMessage = "Failed to update provider: \(error.localizedDescription)"
+        }
+    }
+    
+    func updateConfiguration(_ newConfig: LLMProviderConfig) async {
+        currentConfig = newConfig
+        
+        guard let conversation else { return }
+        
+        conversation.providerName = newConfig.provider
+        conversation.modelName = newConfig.model
+        
         do {
             try await repository.updateConversation(conversation)
         } catch {

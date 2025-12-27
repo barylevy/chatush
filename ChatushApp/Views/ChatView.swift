@@ -37,7 +37,14 @@ struct ChatView: View {
                     }
                 }) {
                     if let conversation = viewModel.conversation {
-                        ChatSettingsView(conversation: conversation)
+                        ChatSettingsView(
+                            conversation: conversation,
+                            onConfigurationChanged: { newConfig in
+                                Task {
+                                    await viewModel.updateConfiguration(newConfig)
+                                }
+                            }
+                        )
                     }
                 }
                 .overlay {

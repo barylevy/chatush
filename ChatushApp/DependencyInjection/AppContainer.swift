@@ -10,14 +10,11 @@ enum StorageType: String, CaseIterable {
 
 /// Main dependency injection container using Factory
 extension Container {
-    // MARK: - Storage Type
 
     var storageType: Factory<StorageType> {
         self { .keychain }
             .scope(.shared)
     }
-
-    // MARK: - Credentials Storage
 
     var credentialsStorage: Factory<CredentialsStorageProtocol> {
         self {
@@ -32,8 +29,6 @@ extension Container {
         .scope(.singleton)
     }
 
-    // MARK: - SDK
-
     var networkClient: Factory<NetworkClientProtocol> {
         self { NetworkClient() }
             .scope(.singleton)
@@ -46,8 +41,6 @@ extension Container {
         .scope(.singleton)
     }
 
-    // MARK: - Repositories
-
     var conversationsRepository: Factory<ConversationsRepositoryProtocol> {
         self {
             @MainActor in
@@ -56,8 +49,6 @@ extension Container {
         }
         .scope(.singleton)
     }
-
-    // MARK: - SwiftData Context
 
     var modelContainer: Factory<ModelContainer> {
         self {
