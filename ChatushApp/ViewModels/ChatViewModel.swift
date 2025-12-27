@@ -33,19 +33,31 @@ final class ChatViewModel {
         self.conversation = conversation
         messages = conversation.messages.sorted { $0.timestamp < $1.timestamp }
 
-        // Load config
+        // Load active config
         do {
-            currentConfig = try await credentialsStorage.loadConfig() ?? .defaultConfig
+            if let configurationsData = try await credentialsStorage.loadConfigurations() {
+                currentConfig = configurationsData.activeConfig()
+            } else {
+                currentConfig = LLMProviderConfig.mockConfig
+            }
         } catch {
             errorMessage = "Failed to load configuration: \(error.localizedDescription)"
-            currentConfig = .defaultConfig
+            currentConfig = LLMProviderConfig.mockConfig
         }
     }
 
     func createNewConversation() async {
         do {
-            let config = try await credentialsStorage.loadConfig() ?? .defaultConfig
-            currentConfig = config
+            if let configurationsData = try await credentialsStorage.loadConfigurations() {
+                currentConfig = configurationsData.activeConfig()
+            } else {
+                currentConfig = LLMProviderConfig.mockConfig
+            }
+            
+            guard let config = currentConfig else {
+                currentConfig = LLMProviderConfig.mockConfig
+                return
+            }
 
             let newConversation = try await repository.createConversation(
                 title: "New Chat",

@@ -3,22 +3,26 @@ import Security
 
 /// Keychain-based credentials storage implementation
 final class KeychainCredentialsStorage: CredentialsStorageProtocol, @unchecked Sendable {
+    nonisolated init() {}
+    
     private let service = "com.chatush.credentials"
-    private let account = "llm-provider-config"
+    private let account = "llm-configurations-data"
 
-    nonisolated func saveConfig(_ config: LLMProviderConfig) async throws {
+    nonisolated func saveConfigurations(_ data: LLMConfigurationsData) async throws {
         let encoder = JSONEncoder()
-        let data = try encoder.encode(config)
+        let jsonData = try await Task.detached {
+            try encoder.encode(data)
+        }.value
 
         // Delete existing item first
-        try? await deleteConfig()
+        try? await deleteConfigurations()
 
         // Add new item
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
             kSecAttrService as String: service,
             kSecAttrAccount as String: account,
-            kSecValueData as String: data,
+            kSecValueData as String: jsonData,
         ]
 
         let status = SecItemAdd(query as CFDictionary, nil)
@@ -28,7 +32,7 @@ final class KeychainCredentialsStorage: CredentialsStorageProtocol, @unchecked S
         }
     }
 
-    nonisolated func loadConfig() async throws -> LLMProviderConfig? {
+    nonisolated func loadConfigurations() async throws -> LLMConfigurationsData? {
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
             kSecAttrService as String: service,
@@ -41,7 +45,7 @@ final class KeychainCredentialsStorage: CredentialsStorageProtocol, @unchecked S
         let status = SecItemCopyMatching(query as CFDictionary, &result)
 
         guard status == errSecSuccess,
-              let data = result as? Data else {
+              let jsonData = result as? Data else {
             if status == errSecItemNotFound {
                 return nil
             }
@@ -49,10 +53,12 @@ final class KeychainCredentialsStorage: CredentialsStorageProtocol, @unchecked S
         }
 
         let decoder = JSONDecoder()
-        return try decoder.decode(LLMProviderConfig.self, from: data)
+        return try await Task.detached {
+            try decoder.decode(LLMConfigurationsData.self, from: jsonData)
+        }.value
     }
 
-    nonisolated func deleteConfig() async throws {
+    nonisolated func deleteConfigurations() async throws {
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
             kSecAttrService as String: service,

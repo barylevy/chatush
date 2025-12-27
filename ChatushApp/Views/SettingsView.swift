@@ -2,6 +2,8 @@ import SwiftUI
 
 struct SettingsView: View {
     @State private var viewModel = SettingsViewModel()
+    @State private var editingConfig: LLMProviderConfig?
+    @State private var showingDeleteAlert = false
 
     var body: some View {
         NavigationStack {
@@ -22,90 +24,49 @@ struct SettingsView: View {
                         .foregroundStyle(.secondary)
                 }
 
-                // Provider Section
-                Section("Provider") {
-                    Picker("Provider", selection: $viewModel.config.provider) {
-                        Text("OpenAI").tag("openai")
-                        Text("Mock (Local)").tag("mock")
-                    }
-                    .pickerStyle(.segmented)
-
-                    TextField("Model", text: $viewModel.config.model)
-                        .textInputAutocapitalization(.never)
-                        .autocorrectionDisabled()
-                }
-
-                // API Configuration Section
-                if viewModel.config.provider != "mock" {
-                    Section("API Configuration") {
-                        SecureField("API Key", text: Binding(
-                            get: { viewModel.config.apiKey ?? "" },
-                            set: { viewModel.config.apiKey = $0.isEmpty ? nil : $0 }
-                        ))
-                        .textInputAutocapitalization(.never)
-                        .autocorrectionDisabled()
-
-                        TextField("Endpoint (Optional)", text: Binding(
-                            get: { viewModel.config.endpoint ?? "" },
-                            set: { viewModel.config.endpoint = $0.isEmpty ? nil : $0 }
-                        ))
-                        .textInputAutocapitalization(.never)
-                        .autocorrectionDisabled()
-                        .keyboardType(.URL)
-                    }
-                }
-
-                // Model Parameters Section
-                Section("Model Parameters") {
-                    VStack(alignment: .leading) {
+                // Configurations Section
+                Section("LLM Configurations") {
+                    ForEach(viewModel.configurationsData.configurations) { config in
                         HStack {
-                            Text("Temperature")
+                            if config.id == viewModel.configurationsData.activeConfigId {
+                                Image(systemName: "checkmark.circle.fill")
+                                    .foregroundStyle(.green)
+                            } else {
+                                Image(systemName: "circle")
+                                    .foregroundStyle(.clear)
+                            }
+                            
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text(config.name)
+                                    .font(.headline)
+                                
+                                Text("\(config.provider) · \(config.model)")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+                            
                             Spacer()
-                            Text(String(format: "%.2f", viewModel.config.temperature))
-                                .foregroundStyle(.secondary)
+                            
+                            Button {
+                                editingConfig = config
+                            } label: {
+                                Image(systemName: "info.circle")
+                                    .foregroundStyle(.blue)
+                                    .font(.title3)
+                            }
+                            .buttonStyle(.plain)
                         }
-                        Slider(value: $viewModel.config.temperature, in: 0 ... 2, step: 0.1)
+                        .contentShape(Rectangle())
+                        .onTapGesture {
+                            viewModel.setActiveConfiguration(config.id)
+                        }
                     }
-
-                    Stepper("Max Tokens: \(viewModel.config.maxTokens)", value: $viewModel.config.maxTokens, in: 100 ... 4000, step: 100)
                 }
 
                 // Actions Section
                 Section {
-                    Button {
-                        Task {
-                            await viewModel.testConnection()
-                        }
-                    } label: {
-                        HStack {
-                            Spacer()
-                            if viewModel.isLoading {
-                                ProgressView()
-                            } else {
-                                Label("Test Connection", systemImage: "network")
-                            }
-                            Spacer()
-                        }
-                    }
-                    .disabled(viewModel.isLoading)
-
-                    Button {
-                        Task {
-                            await viewModel.saveConfig()
-                        }
-                    } label: {
-                        HStack {
-                            Spacer()
-                            Label("Save Configuration", systemImage: "checkmark.circle")
-                            Spacer()
-                        }
-                    }
-                    .disabled(viewModel.isLoading)
-
                     Button(role: .destructive) {
-                        Task {
-                            await viewModel.deleteConfig()
-                        }
+                        showingDeleteAlert = true
                     } label: {
                         HStack {
                             Spacer()
@@ -115,17 +76,24 @@ struct SettingsView: View {
                     }
                     .disabled(viewModel.isLoading)
                 }
-
-                // Provider Info Section
-                Section("Current Configuration") {
-                    LabeledContent("Provider", value: viewModel.config.provider)
-                    LabeledContent("Model", value: viewModel.config.model)
-                    LabeledContent("Temperature", value: String(format: "%.2f", viewModel.config.temperature))
-                    LabeledContent("Max Tokens", value: "\(viewModel.config.maxTokens)")
-                }
             }
             .navigationTitle("Settings")
             .dismissKeyboardOnScroll()
+            .sheet(item: $editingConfig) { config in
+                LLMConfigurationView(config: config) { updatedConfig in
+                    viewModel.updateConfiguration(updatedConfig)
+                }
+            }
+            .alert("Reset Configurations", isPresented: $showingDeleteAlert) {
+                Button("Reset", role: .destructive) {
+                    Task {
+                        await viewModel.deleteConfigurations()
+                    }
+                }
+                Button("Cancel", role: .cancel) {}
+            } message: {
+                Text("This will reset all configurations to default. Are you sure?")
+            }
             .overlay {
                 if let errorMessage = viewModel.errorMessage {
                     VStack {
@@ -162,7 +130,7 @@ struct SettingsView: View {
                 }
             }
             .task {
-                await viewModel.loadConfig()
+                await viewModel.loadConfigurations()
             }
         }
     }

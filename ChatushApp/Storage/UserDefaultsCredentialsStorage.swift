@@ -2,25 +2,31 @@ import Foundation
 
 /// UserDefaults-based credentials storage implementation
 final class UserDefaultsCredentialsStorage: CredentialsStorageProtocol, @unchecked Sendable {
-    private let key = "llm-provider-config"
+    nonisolated init() {}
+    
+    private let key = "llm-configurations-data"
     private let userDefaults = UserDefaults.standard
 
-    nonisolated func saveConfig(_ config: LLMProviderConfig) async throws {
+    nonisolated func saveConfigurations(_ data: LLMConfigurationsData) async throws {
         let encoder = JSONEncoder()
-        let data = try encoder.encode(config)
-        userDefaults.set(data, forKey: key)
+        let jsonData = try await Task.detached {
+            try encoder.encode(data)
+        }.value
+        userDefaults.set(jsonData, forKey: key)
     }
 
-    nonisolated func loadConfig() async throws -> LLMProviderConfig? {
-        guard let data = userDefaults.data(forKey: key) else {
+    nonisolated func loadConfigurations() async throws -> LLMConfigurationsData? {
+        guard let jsonData = userDefaults.data(forKey: key) else {
             return nil
         }
 
         let decoder = JSONDecoder()
-        return try decoder.decode(LLMProviderConfig.self, from: data)
+        return try await Task.detached {
+            try decoder.decode(LLMConfigurationsData.self, from: jsonData)
+        }.value
     }
 
-    nonisolated func deleteConfig() async throws {
+    nonisolated func deleteConfigurations() async throws {
         userDefaults.removeObject(forKey: key)
     }
 

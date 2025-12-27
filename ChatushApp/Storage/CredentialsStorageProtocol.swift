@@ -1,10 +1,10 @@
 import Foundation
 
-/// Protocol for storing and retrieving credentials
+/// Protocol for storing and retrieving LLM configurations
 protocol CredentialsStorageProtocol: Sendable {
-    nonisolated func saveConfig(_ config: LLMProviderConfig) async throws
-    nonisolated func loadConfig() async throws -> LLMProviderConfig?
-    nonisolated func deleteConfig() async throws
+    nonisolated func saveConfigurations(_ data: LLMConfigurationsData) async throws
+    nonisolated func loadConfigurations() async throws -> LLMConfigurationsData?
+    nonisolated func deleteConfigurations() async throws
     nonisolated func getStorageType() -> String
 }
 

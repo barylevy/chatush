@@ -14,57 +14,75 @@ final class SettingsViewModel {
     @Injected(\.storageType)
     private var storageTypeFactory
 
-    var config: LLMProviderConfig = .defaultConfig
+    var configurationsData: LLMConfigurationsData = .default
     var isLoading = false
     var errorMessage: String?
     var successMessage: String?
     var storageType: StorageType = .keychain
 
-    func loadConfig() async {
+    func loadConfigurations() async {
         isLoading = true
         errorMessage = nil
 
         do {
-            if let loadedConfig = try await credentialsStorage.loadConfig() {
-                config = loadedConfig
+            if let loadedData = try await credentialsStorage.loadConfigurations() {
+                configurationsData = loadedData
             } else {
-                config = .defaultConfig
+                configurationsData = .default
             }
             storageType = storageTypeFactory
         } catch {
-            errorMessage = "Failed to load configuration: \(error.localizedDescription)"
-            config = .defaultConfig
+            errorMessage = "Failed to load configurations: \(error.localizedDescription)"
+            configurationsData = .default
         }
 
         isLoading = false
     }
 
-    func saveConfig() async {
+    func saveConfigurations() async {
         isLoading = true
         errorMessage = nil
         successMessage = nil
 
         do {
-            try await credentialsStorage.saveConfig(config)
-            successMessage = "Configuration saved successfully"
+            try await credentialsStorage.saveConfigurations(configurationsData)
+            successMessage = "Configurations saved successfully"
         } catch {
-            errorMessage = "Failed to save configuration: \(error.localizedDescription)"
+            errorMessage = "Failed to save configurations: \(error.localizedDescription)"
         }
 
         isLoading = false
     }
 
-    func deleteConfig() async {
+    func updateConfiguration(_ config: LLMProviderConfig) {
+        if let index = configurationsData.configurations.firstIndex(where: { $0.id == config.id }) {
+            configurationsData.configurations[index] = config
+        }
+        
+        Task {
+            await saveConfigurations()
+        }
+    }
+    
+    func setActiveConfiguration(_ id: UUID) {
+        configurationsData.activeConfigId = id
+        
+        Task {
+            await saveConfigurations()
+        }
+    }
+
+    func deleteConfigurations() async {
         isLoading = true
         errorMessage = nil
         successMessage = nil
 
         do {
-            try await credentialsStorage.deleteConfig()
-            config = .defaultConfig
-            successMessage = "Configuration deleted successfully"
+            try await credentialsStorage.deleteConfigurations()
+            configurationsData = .default
+            successMessage = "Configurations reset successfully"
         } catch {
-            errorMessage = "Failed to delete configuration: \(error.localizedDescription)"
+            errorMessage = "Failed to delete configurations: \(error.localizedDescription)"
         }
 
         isLoading = false
@@ -76,34 +94,7 @@ final class SettingsViewModel {
         Container.shared.credentialsStorage.reset()
 
         Task {
-            await loadConfig()
+            await loadConfigurations()
         }
-    }
-
-    func testConnection() async {
-        isLoading = true
-        errorMessage = nil
-        successMessage = nil
-
-        do {
-            let sdk = Container.shared.chatushSDK()
-            let testMessage = ChatMessage(role: .user, content: "Hello")
-
-            let modelConfig = ModelConfiguration(
-                provider: config.provider,
-                model: config.model,
-                apiKey: config.apiKey,
-                endpoint: config.endpoint,
-                temperature: config.temperature,
-                maxTokens: config.maxTokens
-            )
-
-            _ = try await sdk.sendMessage(messages: [testMessage], config: modelConfig)
-            successMessage = "Connection successful!"
-        } catch {
-            errorMessage = "Connection failed: \(error.localizedDescription)"
-        }
-
-        isLoading = false
     }
 }
