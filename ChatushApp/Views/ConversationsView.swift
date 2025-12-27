@@ -23,6 +23,7 @@ struct ConversationsView: View {
                                 showChat = true
                             } label: {
                                 ConversationRow(conversation: conversation)
+                                    .contentShape(Rectangle())
                             }
                             .buttonStyle(.plain)
                             .swipeActions(edge: .trailing, allowsFullSwipe: true) {
