@@ -137,6 +137,11 @@ struct SettingsView: View {
                             .clipShape(RoundedRectangle(cornerRadius: 10))
                             .padding()
                     }
+                    .transition(.move(edge: .bottom).combined(with: .opacity))
+                    .task {
+                        try? await Task.sleep(nanoseconds: 3_000_000_000)
+                        viewModel.errorMessage = nil
+                    }
                 }
 
                 if let successMessage = viewModel.successMessage {
@@ -148,6 +153,11 @@ struct SettingsView: View {
                             .background(.green)
                             .clipShape(RoundedRectangle(cornerRadius: 10))
                             .padding()
+                    }
+                    .transition(.move(edge: .bottom).combined(with: .opacity))
+                    .task {
+                        try? await Task.sleep(nanoseconds: 3_000_000_000)
+                        viewModel.successMessage = nil
                     }
                 }
             }
