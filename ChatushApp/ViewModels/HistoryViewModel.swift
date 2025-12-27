@@ -17,15 +17,6 @@ final class HistoryViewModel {
     private var currentOffset = 0
     private var hasMorePages = true
     
-    func getLastConversation() async -> Conversation? {
-        do {
-            let recent = try await repository.fetchConversations(limit: 1, offset: 0)
-            return recent.first
-        } catch {
-            return nil
-        }
-    }
-
     func loadInitialConversations() async {
         guard !isLoading else { return }
 

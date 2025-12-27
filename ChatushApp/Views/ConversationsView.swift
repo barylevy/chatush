@@ -12,8 +12,8 @@ struct ConversationsView: View {
                 if viewModel.conversations.isEmpty, !viewModel.isLoading {
                     ContentUnavailableView(
                         "No Conversations",
-                        systemImage: "message.slash",
-                        description: Text("Start a new chat to see your conversation history")
+                        systemImage: "bubble.left.and.bubble.right",
+                        description: Text("Start a new chat to interact with LLM model.")
                     )
                 } else {
                     List {
@@ -56,7 +56,7 @@ struct ConversationsView: View {
                     }
                 }
             }
-            .navigationTitle("Conversations")
+            .navigationTitle("Chats")
             .toolbar {
                 ToolbarItem(placement: .primaryAction) {
                     Button {
