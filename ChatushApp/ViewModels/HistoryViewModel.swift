@@ -6,7 +6,8 @@ import SwiftUI
 @Observable
 final class HistoryViewModel {
     @ObservationIgnored
-    @Injected(\.conversationsRepository) private var repository
+    @Injected(\.conversationsRepository)
+    private var repository
 
     var conversations: [Conversation] = []
     var isLoading = false

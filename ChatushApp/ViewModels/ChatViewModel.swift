@@ -7,13 +7,16 @@ import SwiftUI
 @Observable
 final class ChatViewModel {
     @ObservationIgnored
-    @Injected(\.conversationsRepository) private var repository
+    @Injected(\.conversationsRepository)
+    private var repository
 
     @ObservationIgnored
-    @Injected(\.chatushSDK) private var sdk
+    @Injected(\.chatushSDK)
+    private var sdk
 
     @ObservationIgnored
-    @Injected(\.credentialsStorage) private var credentialsStorage
+    @Injected(\.credentialsStorage)
+    private var credentialsStorage
 
     var conversation: Conversation?
     var messages: [Message] = []

@@ -7,10 +7,12 @@ import SwiftUI
 @Observable
 final class SettingsViewModel {
     @ObservationIgnored
-    @Injected(\.credentialsStorage) private var credentialsStorage
+    @Injected(\.credentialsStorage)
+    private var credentialsStorage
 
     @ObservationIgnored
-    @Injected(\.storageType) private var storageTypeFactory
+    @Injected(\.storageType)
+    private var storageTypeFactory
 
     var config: LLMProviderConfig = .defaultConfig
     var isLoading = false

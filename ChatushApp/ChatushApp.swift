@@ -11,7 +11,8 @@ import SwiftUI
 
 @main
 struct ChatushApp: App {
-    @Injected(\.modelContainer) private var modelContainer
+    @Injected(\.modelContainer)
+    private var modelContainer
 
     var body: some Scene {
         WindowGroup {
