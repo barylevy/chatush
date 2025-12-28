@@ -1,6 +1,5 @@
 import ChatushSDK
 import Factory
-import SwiftData
 
 /// Storage type preference
 enum StorageType: String, CaseIterable {
@@ -39,38 +38,18 @@ extension Container {
         }
         .scope(.singleton)
     }
+    
+    var fileStorageManager: Factory<FileStorageManagerProtocol> {
+        self { FileStorageManager() }
+            .scope(.singleton)
+    }
 
     var conversationsRepository: Factory<ConversationsRepositoryProtocol> {
         self {
             @MainActor in
-            let context = self.modelContext()
-            return ConversationsRepository(modelContext: context)
+            let storage = self.fileStorageManager()
+            return ConversationsRepository(storage: storage)
         }
         .scope(.singleton)
-    }
-
-    var modelContainer: Factory<ModelContainer> {
-        self {
-            let schema = Schema([
-                Conversation.self,
-                Message.self,
-            ])
-            let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
-
-            do {
-                return try ModelContainer(for: schema, configurations: [modelConfiguration])
-            } catch {
-                fatalError("Could not create ModelContainer: \(error)")
-            }
-        }
-        .scope(.singleton)
-    }
-
-    var modelContext: Factory<ModelContext> {
-        self {
-            let container = self.modelContainer()
-            return ModelContext(container)
-        }
-        .scope(.shared)
     }
 }

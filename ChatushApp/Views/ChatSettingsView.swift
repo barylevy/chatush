@@ -2,7 +2,7 @@ import Factory
 import SwiftUI
 
 struct ChatSettingsView: View {
-    @Bindable var conversation: Conversation
+    var conversation: Conversation
     @State private var viewModel = ChatSettingsViewModel()
     @State private var showLLMConfiguration = false
     @State private var showDeleteAlert = false

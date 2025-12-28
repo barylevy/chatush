@@ -1,15 +1,11 @@
 import Foundation
-import SwiftData
 
-@Model
-final class Message {
+final class Message: Codable, Identifiable, Equatable {
     var id: UUID
     var content: String
     var timestamp: Date
     var isFromUser: Bool
     var latencyMs: Int?
-
-    var conversation: Conversation?
 
     init(
         id: UUID = UUID(),
@@ -23,5 +19,9 @@ final class Message {
         self.timestamp = timestamp
         self.isFromUser = isFromUser
         self.latencyMs = latencyMs
+    }
+    
+    static func == (lhs: Message, rhs: Message) -> Bool {
+        lhs.id == rhs.id
     }
 }

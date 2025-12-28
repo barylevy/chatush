@@ -1,16 +1,12 @@
 import Foundation
-import SwiftData
 
-@Model
-final class Conversation {
+final class Conversation: Codable, Identifiable, Equatable {
     var id: UUID
     var title: String
     var createdAt: Date
     var updatedAt: Date
     var providerName: String
     var modelName: String
-
-    @Relationship(deleteRule: .cascade, inverse: \Message.conversation)
     var messages: [Message] = []
 
     init(
@@ -19,7 +15,8 @@ final class Conversation {
         createdAt: Date = Date(),
         updatedAt: Date = Date(),
         providerName: String,
-        modelName: String
+        modelName: String,
+        messages: [Message] = []
     ) {
         self.id = id
         self.title = title
@@ -27,9 +24,14 @@ final class Conversation {
         self.updatedAt = updatedAt
         self.providerName = providerName
         self.modelName = modelName
+        self.messages = messages
     }
 
     var lastMessageDate: Date {
         messages.last?.timestamp ?? updatedAt
+    }
+    
+    static func == (lhs: Conversation, rhs: Conversation) -> Bool {
+        lhs.id == rhs.id
     }
 }
