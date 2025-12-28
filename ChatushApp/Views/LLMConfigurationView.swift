@@ -31,6 +31,9 @@ struct LLMConfigurationView: View {
                             Text("Mock (Local)").tag("mock")
                         }
                         .pickerStyle(.menu)
+                        .onChange(of: viewModel.config.provider) { _, newProvider in
+                            viewModel.config.model = defaultModel(for: newProvider)
+                        }
                     } else {
                         HStack {
                             Text("Provider")
@@ -170,6 +173,19 @@ struct LLMConfigurationView: View {
                     }
                 }
             }
+        }
+    }
+    
+    private func defaultModel(for provider: String) -> String {
+        switch provider {
+        case "openai":
+            return "gpt-4o-mini"
+        case "claude":
+            return "claude-3-5-sonnet-20241022"
+        case "mock":
+            return "mock-v1"
+        default:
+            return ""
         }
     }
 }

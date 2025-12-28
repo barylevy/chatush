@@ -10,6 +10,50 @@ public final class OpenAIModelProvider: ModelProviderProtocol, Sendable {
     public init(networkClient: NetworkClientProtocol = NetworkClient()) {
         self.networkClient = networkClient
     }
+    
+    // MARK: - Request/Response Models
+    
+    private struct OpenAIRequest: Codable {
+        let model: String
+        let messages: [OpenAIMessage]
+        let temperature: Double?
+        let maxTokens: Int?
+        let stream: Bool?
+        
+        enum CodingKeys: String, CodingKey {
+            case model, messages, temperature, stream
+            case maxTokens = "max_tokens"
+        }
+    }
+    
+    private struct OpenAIMessage: Codable {
+        let role: String
+        let content: String
+    }
+    
+    private struct OpenAIResponse: Codable {
+        let choices: [Choice]
+        
+        struct Choice: Codable {
+            let message: Message
+            
+            struct Message: Codable {
+                let content: String
+            }
+        }
+    }
+    
+    private struct OpenAIStreamResponse: Codable {
+        let choices: [StreamChoice]
+        
+        struct StreamChoice: Codable {
+            let delta: Delta
+            
+            struct Delta: Codable {
+                let content: String?
+            }
+        }
+    }
 
     public func sendPrompt(messages: [ChatMessage], config: ModelConfiguration) async throws -> ModelResponse {
         let startTime = Date()
@@ -29,24 +73,17 @@ public final class OpenAIModelProvider: ModelProviderProtocol, Sendable {
         request.setValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
 
-        let openAIMessages = messages.map { message in
-            ["role": message.role.rawValue, "content": message.content]
-        }
+        let openAIMessages = messages.map { OpenAIMessage(role: $0.role.rawValue, content: $0.content) }
+        
+        let requestBody = OpenAIRequest(
+            model: config.model,
+            messages: openAIMessages,
+            temperature: config.temperature,
+            maxTokens: config.maxTokens,
+            stream: nil
+        )
 
-        var requestBody: [String: Any] = [
-            "model": config.model,
-            "messages": openAIMessages,
-        ]
-
-        if let temperature = config.temperature {
-            requestBody["temperature"] = temperature
-        }
-
-        if let maxTokens = config.maxTokens {
-            requestBody["max_tokens"] = maxTokens
-        }
-
-        request.httpBody = try JSONSerialization.data(withJSONObject: requestBody)
+        request.httpBody = try JSONEncoder().encode(requestBody)
 
         // Send request through network layer
         let (data, httpResponse) = try await networkClient.request(request)
@@ -58,13 +95,8 @@ public final class OpenAIModelProvider: ModelProviderProtocol, Sendable {
         }
 
         // Parse response
-        let json = try JSONSerialization.jsonObject(with: data) as? [String: Any]
-        guard let choices = json?["choices"] as? [[String: Any]],
-              let firstChoice = choices.first,
-              let message = firstChoice["message"] as? [String: Any],
-              let content = message["content"] as? String else {
-            throw ModelProviderError.invalidResponse
-        }
+        let response = try JSONDecoder().decode(OpenAIResponse.self, from: data)
+        let content = response.choices.first?.message.content ?? ""
 
         let latencyMs = Int(Date().timeIntervalSince(startTime) * 1000)
 
@@ -94,25 +126,17 @@ public final class OpenAIModelProvider: ModelProviderProtocol, Sendable {
                     request.setValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
                     request.setValue("application/json", forHTTPHeaderField: "Content-Type")
 
-                    let openAIMessages = messages.map { message in
-                        ["role": message.role.rawValue, "content": message.content]
-                    }
+                    let openAIMessages = messages.map { OpenAIMessage(role: $0.role.rawValue, content: $0.content) }
+                    
+                    let requestBody = OpenAIRequest(
+                        model: config.model,
+                        messages: openAIMessages,
+                        temperature: config.temperature,
+                        maxTokens: config.maxTokens,
+                        stream: true
+                    )
 
-                    var requestBody: [String: Any] = [
-                        "model": config.model,
-                        "messages": openAIMessages,
-                        "stream": true,
-                    ]
-
-                    if let temperature = config.temperature {
-                        requestBody["temperature"] = temperature
-                    }
-
-                    if let maxTokens = config.maxTokens {
-                        requestBody["max_tokens"] = maxTokens
-                    }
-
-                    request.httpBody = try JSONSerialization.data(withJSONObject: requestBody)
+                    request.httpBody = try JSONEncoder().encode(requestBody)
 
                     // Use network layer for streaming
                     let stream = try await networkClient.streamRequest(request)
@@ -131,11 +155,8 @@ public final class OpenAIModelProvider: ModelProviderProtocol, Sendable {
                             }
 
                             guard let jsonData = jsonString.data(using: .utf8),
-                                  let json = try? JSONSerialization.jsonObject(with: jsonData) as? [String: Any],
-                                  let choices = json["choices"] as? [[String: Any]],
-                                  let firstChoice = choices.first,
-                                  let delta = firstChoice["delta"] as? [String: Any],
-                                  let content = delta["content"] as? String else {
+                                  let streamResponse = try? JSONDecoder().decode(OpenAIStreamResponse.self, from: jsonData),
+                                  let content = streamResponse.choices.first?.delta.content else {
                                 continue
                             }
 

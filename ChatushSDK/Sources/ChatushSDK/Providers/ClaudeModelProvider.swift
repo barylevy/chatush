@@ -10,6 +10,43 @@ public final class ClaudeModelProvider: ModelProviderProtocol, Sendable {
     public init(networkClient: NetworkClientProtocol = NetworkClient()) {
         self.networkClient = networkClient
     }
+    
+    // MARK: - Request/Response Models
+    
+    private struct ClaudeRequest: Codable {
+        let model: String
+        let messages: [ClaudeMessage]
+        let maxTokens: Int
+        let temperature: Double?
+        let stream: Bool?
+        
+        enum CodingKeys: String, CodingKey {
+            case model, messages, temperature, stream
+            case maxTokens = "max_tokens"
+        }
+    }
+    
+    private struct ClaudeMessage: Codable {
+        let role: String
+        let content: String
+    }
+    
+    private struct ClaudeResponse: Codable {
+        let content: [ContentBlock]
+        
+        struct ContentBlock: Codable {
+            let text: String
+        }
+    }
+    
+    private struct ClaudeStreamEvent: Codable {
+        let type: String
+        let delta: Delta?
+        
+        struct Delta: Codable {
+            let text: String?
+        }
+    }
 
     public func sendPrompt(messages: [ChatMessage], config: ModelConfiguration) async throws -> ModelResponse {
         let startTime = Date()
@@ -32,20 +69,21 @@ public final class ClaudeModelProvider: ModelProviderProtocol, Sendable {
 
         // Convert messages to Claude format
         let claudeMessages = messages.map { message in
-            ["role": message.role.rawValue == "system" ? "user" : message.role.rawValue, "content": message.content]
+            ClaudeMessage(
+                role: message.role.rawValue == "system" ? "user" : message.role.rawValue,
+                content: message.content
+            )
         }
+        
+        let requestBody = ClaudeRequest(
+            model: config.model,
+            messages: claudeMessages,
+            maxTokens: config.maxTokens ?? 2000,
+            temperature: config.temperature,
+            stream: nil
+        )
 
-        var requestBody: [String: Any] = [
-            "model": config.model,
-            "messages": claudeMessages,
-            "max_tokens": config.maxTokens ?? 2000,
-        ]
-
-        if let temperature = config.temperature {
-            requestBody["temperature"] = temperature
-        }
-
-        request.httpBody = try JSONSerialization.data(withJSONObject: requestBody)
+        request.httpBody = try JSONEncoder().encode(requestBody)
 
         // Send request through network layer
         let (data, httpResponse) = try await networkClient.request(request)
@@ -57,12 +95,8 @@ public final class ClaudeModelProvider: ModelProviderProtocol, Sendable {
         }
 
         // Parse response
-        let json = try JSONSerialization.jsonObject(with: data) as? [String: Any]
-        guard let content = json?["content"] as? [[String: Any]],
-              let firstContent = content.first,
-              let text = firstContent["text"] as? String else {
-            throw ModelProviderError.invalidResponse
-        }
+        let response = try JSONDecoder().decode(ClaudeResponse.self, from: data)
+        let text = response.content.first?.text ?? ""
 
         let latencyMs = Int(Date().timeIntervalSince(startTime) * 1000)
 
@@ -94,21 +128,21 @@ public final class ClaudeModelProvider: ModelProviderProtocol, Sendable {
                     request.setValue("2023-06-01", forHTTPHeaderField: "anthropic-version")
 
                     let claudeMessages = messages.map { message in
-                        ["role": message.role.rawValue == "system" ? "user" : message.role.rawValue, "content": message.content]
+                        ClaudeMessage(
+                            role: message.role.rawValue == "system" ? "user" : message.role.rawValue,
+                            content: message.content
+                        )
                     }
+                    
+                    let requestBody = ClaudeRequest(
+                        model: config.model,
+                        messages: claudeMessages,
+                        maxTokens: config.maxTokens ?? 2000,
+                        temperature: config.temperature,
+                        stream: true
+                    )
 
-                    var requestBody: [String: Any] = [
-                        "model": config.model,
-                        "messages": claudeMessages,
-                        "max_tokens": config.maxTokens ?? 2000,
-                        "stream": true,
-                    ]
-
-                    if let temperature = config.temperature {
-                        requestBody["temperature"] = temperature
-                    }
-
-                    request.httpBody = try JSONSerialization.data(withJSONObject: requestBody)
+                    request.httpBody = try JSONEncoder().encode(requestBody)
 
                     // Use network layer for streaming
                     let stream = try await networkClient.streamRequest(request)
@@ -127,18 +161,16 @@ public final class ClaudeModelProvider: ModelProviderProtocol, Sendable {
                             }
 
                             guard let jsonData = jsonString.data(using: .utf8),
-                                  let json = try? JSONSerialization.jsonObject(with: jsonData) as? [String: Any],
-                                  let type = json["type"] as? String else {
+                                  let event = try? JSONDecoder().decode(ClaudeStreamEvent.self, from: jsonData) else {
                                 continue
                             }
 
                             // Claude streaming format
-                            if type == "content_block_delta" {
-                                if let delta = json["delta"] as? [String: Any],
-                                   let text = delta["text"] as? String {
+                            if event.type == "content_block_delta" {
+                                if let text = event.delta?.text {
                                     continuation.yield(text)
                                 }
-                            } else if type == "message_stop" {
+                            } else if event.type == "message_stop" {
                                 continuation.finish()
                                 return
                             }
