@@ -1,7 +1,7 @@
 import Foundation
 
 /// Main SDK interface for Chatush
-@available(iOS 18.0, macOS 15.0, *)
+@available(iOS 17.0, macOS 14.0, *)
 public actor ChatushSDK {
     private let router: ModelRouter
 

@@ -1,7 +1,7 @@
 import Foundation
 
 /// OpenAI model provider implementation
-@available(iOS 18.0, macOS 15.0, *)
+@available(iOS 17.0, macOS 14.0, *)
 public final class OpenAIModelProvider: ModelProviderProtocol, Sendable {
     public var supportsStreaming: Bool { true }
 

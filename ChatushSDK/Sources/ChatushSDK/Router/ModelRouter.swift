@@ -1,7 +1,7 @@
 import Foundation
 
 /// Router that determines which provider to use based on configuration
-@available(iOS 18.0, macOS 15.0, *)
+@available(iOS 17.0, macOS 14.0, *)
 public actor ModelRouter {
     private var providers: [String: ModelProviderProtocol] = [:]
     private let networkClient: NetworkClientProtocol

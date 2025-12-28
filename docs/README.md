@@ -85,15 +85,16 @@ Chatush/
 
 ### Prerequisites
 
-- Xcode 15.0+ (for iOS 18.0+ support)
-- iOS 18.0+ device or simulator
+- Xcode 15.0+
+- iOS 17.0+ device or simulator
 - OpenAI API key (for OpenAI provider)
 
 ### Installation
 
 1. **Clone the repository**
    ```bash
-   cd /Users/bari.levi/Dev_env/Chatush
+   git clone https://github.com/barylevy/chatush.git
+   cd chatush
    ```
 
 2. **Open the project in Xcode**
@@ -406,7 +407,7 @@ This project is created as a demonstration of iOS development skills.
 ## 👤 Author
 
 **Bari Levi**
-- Development Environment: Xcode 15, iOS 18
+- Development Environment: Xcode 15, iOS 17+
 - Architecture: MVVM with Factory DI
 - Date: December 2025
 

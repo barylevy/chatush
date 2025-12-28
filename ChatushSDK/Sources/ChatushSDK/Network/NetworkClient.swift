@@ -7,7 +7,7 @@ public protocol NetworkClientProtocol: Sendable {
 }
 
 /// Network client that handles all HTTP requests and responses
-@available(iOS 18.0, macOS 15.0, *)
+@available(iOS 17.0, macOS 14.0, *)
 public actor NetworkClient: NetworkClientProtocol {
     private let session: URLSession
     private let logger: NetworkLogger

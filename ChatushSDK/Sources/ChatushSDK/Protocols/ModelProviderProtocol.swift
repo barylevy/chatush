@@ -1,7 +1,7 @@
 import Foundation
 
 /// Protocol defining the interface for all model providers
-@available(iOS 18.0, macOS 15.0, *)
+@available(iOS 17.0, macOS 14.0, *)
 public protocol ModelProviderProtocol: Sendable {
     /// Send a prompt to the model and get a response
     /// - Parameters:
