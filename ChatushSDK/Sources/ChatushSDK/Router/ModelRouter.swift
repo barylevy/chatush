@@ -10,6 +10,7 @@ public actor ModelRouter {
         self.networkClient = networkClient ?? NetworkClient()
         // Register default providers with network client
         providers["openai"] = OpenAIModelProvider(networkClient: self.networkClient)
+        providers["claude"] = ClaudeModelProvider(networkClient: self.networkClient)
         providers["mock"] = MockModelProvider()
     }
 

@@ -32,6 +32,17 @@ struct LLMProviderConfig: Codable, Sendable, Identifiable {
         temperature: 0.7,
         maxTokens: 2000
     )
+    
+    static let claudeConfig = LLMProviderConfig(
+        id: UUID(),
+        name: "Claude",
+        provider: "claude",
+        model: "claude-3-5-sonnet-20241022",
+        apiKey: nil,
+        endpoint: nil,
+        temperature: 0.7,
+        maxTokens: 2000
+    )
 
-    static let defaultConfigs = [mockConfig, openAIConfig]
+    static let defaultConfigs = [mockConfig, openAIConfig, claudeConfig]
 }

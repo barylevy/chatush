@@ -23,6 +23,7 @@ struct LLMConfigurationView: View {
                 Section("Provider") {
                     Picker("Provider", selection: $viewModel.config.provider) {
                         Text("OpenAI").tag("openai")
+                        Text("Claude").tag("claude")
                         Text("Mock (Local)").tag("mock")
                     }
                     .pickerStyle(.segmented)
