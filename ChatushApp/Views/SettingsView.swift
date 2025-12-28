@@ -121,8 +121,7 @@ struct SettingsView: View {
             Button(role: .destructive) {
                 showingDeleteAlert = true
             } label: {
-                HStack {
-                    Spacer()
+                HStack{
                     Label("Reset to Default", systemImage: "arrow.counterclockwise")
                     Spacer()
                 }
@@ -132,8 +131,7 @@ struct SettingsView: View {
             Button(role: .destructive) {
                 showingClearDataAlert = true
             } label: {
-                HStack {
-                    Spacer()
+                HStack{
                     Label("Clear All Conversations", systemImage: "trash")
                     Spacer()
                 }
