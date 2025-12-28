@@ -4,9 +4,12 @@ struct LLMConfigurationView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var viewModel: LLMConfigurationViewModel
     @State private var showingCancelAlert = false
+    
+    private let allowProviderChange: Bool
 
-    init(config: LLMProviderConfig, onSave: @escaping (LLMProviderConfig) -> Void) {
+    init(config: LLMProviderConfig, allowProviderChange: Bool = false, onSave: @escaping (LLMProviderConfig) -> Void) {
         _viewModel = State(initialValue: LLMConfigurationViewModel(config: config, onSave: onSave))
+        self.allowProviderChange = allowProviderChange
     }
 
     var body: some View {
@@ -21,12 +24,21 @@ struct LLMConfigurationView: View {
 
                 // Provider Section
                 Section("Provider") {
-                    Picker("Provider", selection: $viewModel.config.provider) {
-                        Text("OpenAI").tag("openai")
-                        Text("Claude").tag("claude")
-                        Text("Mock (Local)").tag("mock")
+                    if allowProviderChange {
+                        Picker("Provider", selection: $viewModel.config.provider) {
+                            Text("OpenAI").tag("openai")
+                            Text("Claude").tag("claude")
+                            Text("Mock (Local)").tag("mock")
+                        }
+                        .pickerStyle(.menu)
+                    } else {
+                        HStack {
+                            Text("Provider")
+                                .foregroundStyle(.secondary)
+                            Spacer()
+                            Text(viewModel.config.provider.capitalized)
+                        }
                     }
-                    .pickerStyle(.segmented)
 
                     TextField("Model", text: $viewModel.config.model)
                         .clearButton(text: $viewModel.config.model)

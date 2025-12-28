@@ -143,6 +143,7 @@ struct ChatSettingsView: View {
         if let config = viewModel.currentConfig {
             LLMConfigurationView(
                 config: config,
+                allowProviderChange: true,
                 onSave: { newConfig in
                     Task {
                         await viewModel.updateConfiguration(newConfig, for: conversation)
