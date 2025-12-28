@@ -1,5 +1,6 @@
 import Foundation
 
+@Observable
 final class Message: Codable, Identifiable, Equatable {
     var id: UUID
     var content: String

@@ -1,5 +1,6 @@
 import Foundation
 
+@Observable
 final class Conversation: Codable, Identifiable, Equatable {
     var id: UUID
     var title: String

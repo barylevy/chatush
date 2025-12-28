@@ -116,4 +116,9 @@ final class ConversationsRepository: ConversationsRepositoryProtocol {
         try await loadConversationsIfNeeded()
         return conversations.sorted { $0.updatedAt > $1.updatedAt }
     }
+    
+    func clearAllConversations() async throws {
+        conversations.removeAll()
+        try await storage.clearAllData()
+    }
 }

@@ -9,6 +9,10 @@ final class SettingsViewModel {
     @ObservationIgnored
     @Injected(\.credentialsStorage)
     private var credentialsStorage
+    
+    @ObservationIgnored
+    @Injected(\.conversationsRepository)
+    private var conversationsRepository
 
     @ObservationIgnored
     @Injected(\.storageType)
@@ -96,5 +100,20 @@ final class SettingsViewModel {
         Task {
             await loadConfigurations()
         }
+    }
+    
+    func clearAllData() async {
+        isLoading = true
+        errorMessage = nil
+        successMessage = nil
+
+        do {
+            try await conversationsRepository.clearAllConversations()
+            successMessage = "All conversations deleted successfully"
+        } catch {
+            errorMessage = "Failed to clear conversations: \(error.localizedDescription)"
+        }
+
+        isLoading = false
     }
 }

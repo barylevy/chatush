@@ -4,6 +4,7 @@ struct SettingsView: View {
     @State private var viewModel = SettingsViewModel()
     @State private var editingConfig: LLMProviderConfig?
     @State private var showingDeleteAlert = false
+    @State private var showingClearDataAlert = false
 
     var body: some View {
         NavigationStack {
@@ -21,6 +22,11 @@ struct SettingsView: View {
                 resetAlertButtons
             } message: {
                 resetAlertMessage
+            }
+            .alert("Clear All Data", isPresented: $showingClearDataAlert) {
+                clearDataAlertButtons
+            } message: {
+                clearDataAlertMessage
             }
             .overlay {
                 messagesOverlay
@@ -122,6 +128,17 @@ struct SettingsView: View {
                 }
             }
             .disabled(viewModel.isLoading)
+            
+            Button(role: .destructive) {
+                showingClearDataAlert = true
+            } label: {
+                HStack {
+                    Spacer()
+                    Label("Clear All Conversations", systemImage: "trash")
+                    Spacer()
+                }
+            }
+            .disabled(viewModel.isLoading)
         }
     }
 
@@ -146,6 +163,20 @@ struct SettingsView: View {
 
     private var resetAlertMessage: some View {
         Text("This will reset all configurations to default. Are you sure?")
+    }
+    
+    @ViewBuilder
+    private var clearDataAlertButtons: some View {
+        Button("Clear", role: .destructive) {
+            Task {
+                await viewModel.clearAllData()
+            }
+        }
+        Button("Cancel", role: .cancel) {}
+    }
+    
+    private var clearDataAlertMessage: some View {
+        Text("This will permanently delete all conversations and messages. This action cannot be undone.")
     }
 
     // MARK: - Overlays

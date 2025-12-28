@@ -4,6 +4,7 @@ import Foundation
 protocol FileStorageManagerProtocol: Sendable {
     func loadConversations() async throws -> [Conversation]
     func saveConversations(_ conversations: [Conversation]) async throws
+    func clearAllData() async throws
 }
 
 /// Manages JSON file storage for conversations
@@ -40,5 +41,12 @@ actor FileStorageManager: FileStorageManagerProtocol {
     func saveConversations(_ conversations: [Conversation]) async throws {
         let data = try encoder.encode(conversations)
         try data.write(to: fileURL, options: [.atomic])
+    }
+    
+    func clearAllData() async throws {
+        // Delete the file if it exists
+        if FileManager.default.fileExists(atPath: fileURL.path) {
+            try FileManager.default.removeItem(at: fileURL)
+        }
     }
 }

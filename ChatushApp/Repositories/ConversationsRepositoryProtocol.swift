@@ -13,4 +13,5 @@ protocol ConversationsRepositoryProtocol: Sendable {
     func deleteMessages(_ messages: [Message], from conversation: Conversation) async throws
     func clearConversation(_ conversation: Conversation) async throws
     func fetchAllConversations() async throws -> [Conversation]
+    func clearAllConversations() async throws
 }
