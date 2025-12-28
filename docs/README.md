@@ -9,10 +9,11 @@ A powerful iOS chat application that enables users to interact with multiple Lar
 - **Conversation Management**: Full chat history with pagination support
 - **Mid-Conversation Switching**: Change LLM providers without creating a new conversation
 - **Secure Credential Storage**: Choose between Keychain or UserDefaults for storing API credentials
+- **JSON File Storage**: Lightweight, readable conversation persistence using Codable
 - **Message Management**: Delete individual messages or clear entire conversations
 - **Customizable Parameters**: Adjust temperature, max tokens, and other model parameters
 - **MVVM Architecture**: Clean separation of concerns with dependency injection via Factory
-- **SwiftData Persistence**: Modern data persistence with automatic syncing
+- **Network Logging**: Comprehensive request/response logging with header sanitization
 
 ## 🏗️ Architecture
 
@@ -20,8 +21,7 @@ A powerful iOS chat application that enables users to interact with multiple Lar
 
 ```
 Chatush/
-├── ChatushApp/                 # Main iOS Application
-│   ├── Models/                # Data models (LLMProviderConfig)
+├── ChatushApp/                 # Main iOS AppCodable)
 │   │   ├── Conversation.swift
 │   │   ├── Message.swift
 │   │   └── LLMProviderConfig.swift
@@ -31,17 +31,22 @@ Chatush/
 │   │   └── SettingsViewModel.swift
 │   ├── Views/                 # SwiftUI Views
 │   │   ├── MainTabView.swift
-│   │   ├── HistoryView.swift
+│   │   ├── ConversationsView.swift
 │   │   ├── ChatView.swift
+│   │   ├── ChatSettingsView.swift
 │   │   ├── SettingsView.swift
 │   │   └── AboutView.swift
 │   ├── Repositories/          # Data repository layer
 │   │   ├── ConversationsRepositoryProtocol.swift
 │   │   └── ConversationsRepository.swift
-│   ├── Storage/               # Credential storage implementations
+│   ├── Storage/               # Storage implementations
 │   │   ├── CredentialsStorageProtocol.swift
 │   │   ├── KeychainCredentialsStorage.swift
-│   │   └── UserDefaultsCredentialsStorage.swift
+│   │   ├── UserDefaultsCredentialsStorage.swift
+│   │   └── FileStorageManager.swift
+│   ├── Extensions/            # SwiftUI and other extensions
+│   │   ├── View+Extensions.swift
+│   │   └── Publishers+Keyboard.swift
 │   └── DependencyInjection/   # Factory DI container
 │       └── AppContainer.swift
 │
@@ -58,6 +63,10 @@ Chatush/
             │   ├── OpenAIModelProvider.swift
             │   └── MockModelProvider.swift
             ├── Router/
+            │   └── ModelRouter.swift
+            ├── Network/
+            │   ├── NetworkClient.swift
+            │   └── DefaultNetworkLogg
             │   └── ModelRouter.swift
             ├── Errors/
             │   └── ModelProviderError.swift
@@ -223,6 +232,58 @@ Container.shared.conversationsRepository.register {
 }
 ```
 
+  - Includes: NetworkClient with request/response logging
+
+## 📁 Data Storage
+
+### Conversation Storage
+
+All conversations are stored in JSON format in the app's Documents directory:
+
+**File**: `conversations.json`
+
+**Format**:
+```json
+[
+  {
+    "id": "UUID",
+    "title": "Conversation Title",
+    "createdAt": "2025-12-28T10:00:00Z",
+    "updatedAt": "2025-12-28T10:05:00Z",
+    "providerName": "openai",
+    "modelName": "gpt-4o-mini",
+    "messages": [
+      {
+        "id": "UUID",
+        "content": "Hello",
+        "timestamp": "2025-12-28T10:00:00Z",
+        "isFromUser": true,
+        "latencyMs": null
+      },
+      {
+        "id": "UUID",
+        "content": "Hi! How can I help?",
+        "timestamp": "2025-12-28T10:00:02Z",
+        "isFromUser": false,
+        "latencyMs": 1234
+      }
+    ]
+  }
+]
+```
+
+### Credentials Storage
+
+API keys and configurations stored using selected method:
+- **Keychain**: Secure, encrypted storage (recommended)
+- **UserDefaults**: Simple key-value storage (development/testing)
+
+### Observable Models
+
+Both `Conversation` and `Message` use `@Observable` macro:
+- Automatic UI updates when data changes
+- No manual state management needed
+- Works seamlessly with SwiftUI bindings
 ## 📦 Dependencies
 
 - **Factory** (2.3.0+): Dependency injection framework
@@ -240,19 +301,22 @@ Container.shared.conversationsRepository.register {
 - **HTTPS Only**: All network requests use secure connections
 
 ## 🎯 Design Decisions
+JSON File Storage?
 
-### Why Factory?
+- Lightweight and simple for small to medium datasets
+- Human-readable format for debugging
+- Easy migration and backup
+- No database overhead
+- Perfect fit for chat history with Observable models
+- Instant loading with async/await
 
-- Compile-time safety for dependency injection
-- Zero runtime overhead
-- Simple, Swift-native API
-- Perfect for SwiftUI with `@Injected`
+### Why Actor for SDK and Storage?
 
-### Why SwiftData?
-
-- Modern, Swift-native persistence
-- Automatic change tracking
-- Better performance than CoreData
+- Thread-safe by default
+- Perfect for async/await
+- Prevents data races
+- No manual locking required
+- Ensures consistency in file operationsreData
 - Seamless SwiftUI integration
 
 ### Why Actor for SDK?
