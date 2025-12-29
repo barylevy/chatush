@@ -302,7 +302,7 @@ Both `Conversation` and `Message` use `@Observable` macro:
 - **HTTPS Only**: All network requests use secure connections
 
 ## 🎯 Design Decisions
-JSON File Storage?
+JSON File Storage:
 
 - Lightweight and simple for small to medium datasets
 - Human-readable format for debugging
@@ -311,48 +311,53 @@ JSON File Storage?
 - Perfect fit for chat history with Observable models
 - Instant loading with async/await
 
-### Why Actor for SDK and Storage?
 
-- Thread-safe by default
-- Perfect for async/await
-- Prevents data races
-- No manual locking required
-- Ensures consistency in file operationsreData
-- Seamless SwiftUI integration
-
-### Why Actor for SDK?
-
-- Thread-safe by default
-- Perfect for async/await
-- Prevents data races
-- No manual locking required
-
-### Two Storage Implementations?
+### Two Storage Implementations
 
 - **Keychain**: Production-ready, secure for API keys
 - **UserDefaults**: Simpler, useful for testing/development
-- **Factory**: Enables runtime switching via settings
 
 ## 🌟 Screenshots
 
+<p align="center">
+  <img src="screenshots/chats-tab.png" alt="Chats Tab" width="200"/>
+  <img src="screenshots/chat-view.png" alt="Chat View" width="200"/>
+  <img src="screenshots/chat-settings.png" alt="Chat Settings" width="200"/>
+  <img src="screenshots/settings.png" alt="Settings" width="200"/>
+  <img src="screenshots/about.png" alt="About" width="200"/>
+</p>
+
 ### Main Screens
 
-1. **History Tab**: List of all conversations with paging
-2. **Chat Tab**: WhatsApp-style chat interface with streaming
-3. **Settings Tab**: Configure provider, credentials, and parameters
-4. **About Tab**: App information and feature overview
+| Screen | Description |
+|--------|-------------|
+| **History Tab** | Browse all your conversations with search and pagination. Tap any conversation to continue chatting. |
+| **Chat View** | WhatsApp-style interface with real-time streaming responses. Switch providers mid-conversation. |
+| **Settings** | Configure LLM providers (OpenAI, Claude, Mock), API keys, and model parameters. |
+| **About** | App information, version details, and feature overview. |
 
-## 🔮 Future Enhancements (Optional)
+<p align="center">
+  <img src="screenshots/chat-streaming.png" alt="Streaming Response" width="200"/>
+  <img src="screenshots/provider-config.png" alt="Provider Configuration" width="200"/>
+  <img src="screenshots/chat-settings.png" alt="Chat Settings" width="200"/>
+</p>
 
-- [ ] Additional providers (Anthropic Claude, Google Gemini, Mistral)
-- [ ] Token usage tracking and display
-- [ ] Export conversation history
-- [ ] Search within conversations
-- [ ] Voice input support
-- [ ] Dark mode optimization
-- [ ] Widget support
-- [ ] iCloud sync
-- [ ] Unit and UI tests
+### Key Features
+
+| Feature | Screenshot |
+|---------|------------|
+| **Real-time Streaming** | Messages appear word-by-word as the AI generates them |
+| **Provider Switching** | Change between OpenAI, Claude, and Mock providers on the fly |
+| **Conversation Management** | Delete messages, clear conversations, or start fresh |
+
+> **Note**: To add actual screenshots, take screenshots from your device/simulator and save them to `docs/screenshots/` with the following names:
+> - `history-tab.png` - History/conversations list view
+> - `chat-view.png` - Main chat interface
+> - `settings.png` - Settings screen with provider selection
+> - `about.png` - About screen
+> - `chat-streaming.png` - Chat showing streaming in action
+> - `provider-config.png` - Provider configuration view
+> - `chat-settings.png` - Chat-specific settings (change provider mid-conversation)
 
 ## 📝 Configuration Example
 
