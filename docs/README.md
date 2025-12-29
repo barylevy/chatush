@@ -312,11 +312,6 @@ JSON File Storage:
 - Instant loading with async/await
 
 
-### Two Storage Implementations
-
-- **Keychain**: Production-ready, secure for API keys
-- **UserDefaults**: Simpler, useful for testing/development
-
 ## 🌟 Screenshots
 
 <p align="center">
@@ -327,17 +322,18 @@ JSON File Storage:
   <img src="screenshots/about.png" alt="About" width="200"/>
 </p>
 
+
 ### Main Screens
 
 | Screen | Description |
 |--------|-------------|
-| **History Tab** | Browse all your conversations with search and pagination. Tap any conversation to continue chatting. |
-| **Chat View** | WhatsApp-style interface with real-time streaming responses. Switch providers mid-conversation. |
+| **Chats Tab** | Browse all your conversations with search and pagination. Tap any conversation to continue chatting. |
+| **Chat View** | WhatsApp-style interface with real-time streaming responses. Switch providers mid-conversation. Tap title to navigate to 'Chat Settings' |
 | **Settings** | Configure LLM providers (OpenAI, Claude, Mock), API keys, and model parameters. |
 | **About** | App information, version details, and feature overview. |
 
 <p align="center">
-  <img src="screenshots/chat-streaming.png" alt="Streaming Response" width="200"/>
+  <img src="screenshots/chat-view.png" alt="Streaming Response" width="200"/>
   <img src="screenshots/provider-config.png" alt="Provider Configuration" width="200"/>
   <img src="screenshots/chat-settings.png" alt="Chat Settings" width="200"/>
 </p>
@@ -351,12 +347,10 @@ JSON File Storage:
 | **Conversation Management** | Delete messages, clear conversations, or start fresh |
 
 > **Note**: To add actual screenshots, take screenshots from your device/simulator and save them to `docs/screenshots/` with the following names:
-> - `history-tab.png` - History/conversations list view
+> - `chats-tab.png` - History/conversations list view
 > - `chat-view.png` - Main chat interface
 > - `settings.png` - Settings screen with provider selection
 > - `about.png` - About screen
-> - `chat-streaming.png` - Chat showing streaming in action
-> - `provider-config.png` - Provider configuration view
 > - `chat-settings.png` - Chat-specific settings (change provider mid-conversation)
 
 ## 📝 Configuration Example
